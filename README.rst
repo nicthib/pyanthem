@@ -12,7 +12,7 @@ pyanthem is a Python_ tool that transforms three-dimensional time-varying datase
 Requirements
 ============
 Python 3:
-   Currently, pyanthem is tested to work on Python_ 3.6+. This will be 
+   Currently, pyanthem is tested to work on Python_ 3.7+. This will be 
    updated as more versions are tested.
 
 pip:
@@ -21,29 +21,51 @@ pip:
    see the  `pip installation`_ page for instructions if you do not 
    have pip.
 
+ffmpeg:
+   ffmpeg_ enables video creation and merging.
+
+fluidsynth (optional, but **highly recommended**)
+   fluidsynth_ is a powerful software synthesizer, which enables 
+   conversion of data to crisp, high quality sound files.
+
 git (optional):
   git_ allows pyanthem to download external audio files quickly and 
   easily.
-
-ffmpeg (optional):
-   ffmpeg_ enables merging video and audio files into a single output.
-
+  
 .. _Python: https://www.python.org/
-.. _pip installation: https://pip.pypa.io/en/latest/installing/
+.. _`pip installation`: https://pip.pypa.io/en/latest/installing/
 .. _git: https://git-scm.com/
 .. _ffmpeg: https://ffmpeg.org/
+.. _fluidsynth: http://www.fluidsynth.org/
 
 Installation
 ============
-Basic installation using pip::
+*Note: If you do not have working versions of the above listed 
+requirements, it is recommended that you use miniconda_ for a
+straightforward installation process.*
+
+Using miniconda:
+----------------
+
+First, download the pyanthem.yaml config file here_. Create the environment by navigating to the pyanthem.yaml file's location, and then by running::
+
+.. code-block:: python
+
+   conda env create -f pyanthem.yaml 
+   
+Next, activate the environment::
+
+.. code-block:: python
+
+   conda activate pyanthem
+  
+Using pip
+-----------
 
    python -m pip install pyanthem
-   
-Installation of "Piano" audio engine using git/GitPython::
 
-   import pyanthem
-   pyanthem.AE_download()
-
+.. _miniconda: https://docs.conda.io/en/latest/miniconda.html
+.. _here: https://drive.google.com/file/d/1HSZyFuU_9WmGTSVoVc-DuJzMi76CMseA/view?usp=sharing
 Usage
 =====
 
