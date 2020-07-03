@@ -1,0 +1,19 @@
+# pyanthem.yaml
+
+# install: conda env create -f pyanthem.yaml 
+# update:  conda env update -f pyanthem.yaml 
+# activate: conda activate pyanthem
+# remove: conda remove --name pyanthem --all
+
+name: pyanthem
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.7
+  - pip
+  - git
+  - ffmpeg
+  - pip:
+    - pyanthem
+  - fluidsynth
