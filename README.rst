@@ -41,13 +41,13 @@ git (optional):
 Installation
 ============
 Note: If you do not have working versions of the above listed 
-requirements, it is recommended that you use miniconda_ for a
+requirements, it is recommended that you use miniconda_ or Anaconda_ for a
 straightforward installation process.
 
-Using miniconda:
+Using Miniconda/Anaconda:
 ----------------
 
-First, download the pyanthem.yaml config file for Mac/Linux_, or for Windows_. 
+First, download the pyanthem.yaml config file for `Mac/Linux`_, or for Windows_. 
 Create the environment by navigating to the pyanthem.yaml file's location, 
 and then by running::
 
@@ -65,44 +65,27 @@ the location of the fluidsynth-1.1.1\usr\bin folder to your PATH (see
 C:\Users\Nic\Desktop\fluidsynth-1.1.1\usr\bin to my PATH.
    
 Using pip
------------
+---------
+
+If you already have the requirements installed, install pyanthem using pip::
 
    python -m pip install pyanthem
 
 .. _miniconda: https://docs.conda.io/en/latest/miniconda.html
-.. _Mac/Linux: https://drive.google.com/file/d/1HSZyFuU_9WmGTSVoVc-DuJzMi76CMseA
+.. _Anaconda: https://www.anaconda.com/products/individual
+.. _`Mac/Linux`: https://drive.google.com/file/d/1HSZyFuU_9WmGTSVoVc-DuJzMi76CMseA
 .. _Windows: https://drive.google.com/file/d/1HSZyFuU_9WmGTSVoVc-DuJzMi76CMseA
 .. _`this guide`: https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10/
+.. _here: https://github.com/nicthib/FluidSynth-Windows-Builds/archive/v1.zip
+
 Usage
 =====
 
-
-Contributing
-============
-
-Step 1
-------
-- **Option 1**
-    - Fork this repo!
-
-- **Option 2**
-    - Clone this repo to your local machine using 
-    
-    ```python
-    git clone https://github.com/nicthib/pyanthem.git
-    ```
-
-Step 2
-------
-- Improve this repo!
-
-Step 3
-------
-
-- Create a new pull request using `<https://github.com/nicthib/pyanthem/compare/>`_
+Under construction!
+-------------------
 
 Team
-----
+====
 
 .. |niclogo| image:: https://avatars1.githubusercontent.com/u/34455769?v=3&s=200
 
@@ -111,14 +94,16 @@ Team
 
    |niclogo|
     `<http://github.com/nicthib>`
+
 FAQ
----
+===
 
 - **How do I do *specifically* so and so?**
     - No problem! Just do this.
 
 Support
--------
+=======
+
 - Twitter: `@nicthibs`_
 
 .. _`@nicthibs`: http://twitter.com/nicthibs
