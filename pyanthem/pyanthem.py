@@ -7,6 +7,7 @@ import tkinter.font as font
 from scipy.io import loadmat, savemat, whosmat
 from scipy.optimize import nnls
 from scipy.interpolate import interp1d
+from scipy.io.wavfile import write as wavwrite
 from sklearn.cluster import KMeans
 from pygame.mixer import init, quit, get_init, set_num_channels, pre_init, music
 import matplotlib.pyplot as plt
@@ -314,8 +315,9 @@ class GUI(Tk):
 
 	def process_H_W(self):
 		'''
-		Core function of pyanthem. Applies all cfg settings to dataset, and creates the note dict used for synthesis.
-		Automatically calls refresh_GUI() if display=True
+		Core function of pyanthem. Applies all cfg settings to dataset, and 
+		creates the note dict used for synthesis. Automatically calls 
+		refresh_GUI() if display=True
 		'''
 		if self.display:
 			self.self_to_cfg()
@@ -416,7 +418,7 @@ class GUI(Tk):
 			fn_midi = os.path.join(os.path.dirname(os.path.abspath(__file__)),'preview.mid')
 			fn_wav = os.path.join(os.path.dirname(os.path.abspath(__file__)),'preview.wav')
 			if get_init() is None: # Checks if pygame has initialized audio engine. Only needs to be run once per instance
-				pre_init(44100, -16, 2, 1024)
+				pre_init(fs, -16, 2, 1024)
 				init()
 				set_num_channels(128) # We will never need more than 128...
 			MIDI = MIDIFile(1)  # One track
@@ -425,7 +427,7 @@ class GUI(Tk):
 				MIDI.addNote(0, 0, self.keys[i], i/2, .5, 100)
 			with open(fn_midi, 'wb') as mid:
 				MIDI.writeFile(mid)
-			cmd = 'fluidsynth -ni -F {} -r 44100 {} {} '.format(fn_wav,fn_font,fn_midi)
+			cmd = 'fluidsynth -ni -F {} -r {} {} {} '.format(fn_wav,fs,fn_font,fn_midi)
 			print(cmd)
 			os.system(cmd)
 			music.load(fn_wav)
@@ -465,16 +467,33 @@ class GUI(Tk):
 				MIDI.writeFile(mid)
 		if self.cfg['audio_format'].endswith('.sf2'):
 			fn_font = os.path.join(os.path.dirname(os.path.abspath(__file__)),'anthem_soundfonts',self.cfg['audio_format'])
-			os.system('fluidsynth -ni -F {} -r 44100 {} {}'.format(fn_wav,fn_font,fn_midi))
-		elif self.cfg['audio_format'] == 'Piano':
-			self.synth()
+			os.system('fluidsynth -ni -F {} -r {} {} {}'.format(fn_wav,fs,fn_font,fn_midi))
 		elif self.cfg['audio_format'] == 'Analog':
-			self.neuralstream()
+			freqs = [C0*2**(i/12) for i in range(128)]
+			true_fr = (self.cfg['fr']*self.cfg['speed'])/100
+			ns = int(fs*len(self.data['H_fp'].T)/true_fr)
+			t1 = np.linspace(0,len(self.data['H_fp'].T)/self.cfg['fr'],len(self.data['H_fp'].T))
+			t2 = np.linspace(0,len(self.data['H_fp'].T)/self.cfg['fr'],ns)
+			H = np.zeros((len(t2),))
+			nchan = len(self.data['H_fp'])
+			for n in range(nchan):
+				Htmp = self.data['H_fp'][n,:]
+				Htmp[Htmp<0] = 0
+				Htmp = interp1d(t1,Htmp)(t2)
+				H += np.sin(2*np.pi*freqs[self.keys[n]]*t2)*Htmp
+				Hstr = 'H_fp'
+				if self.display:
+					self.status['text'] = f'Status: Writing audio: {n+1} out of {nchan} channels...'
+					self.update()
+			wav = np.hstack((H[:,None],H[:,None]))
+			wav = np.int16(wav/np.max(np.abs(wav)) * 32767)
+			wavwrite(os.path.join(self.cfg['save_path'],self.cfg['file_out'])+'.wav',fs,wav)
 		self.message(f'Audio file written to {self.cfg["save_path"]}')
-		
+
 	def write_video(self):
 		'''
-		Writes video file using self.data['H_pp'] using opencv
+		Writes video file using self.data['H_pp'] using ffmpeg. 
+		We avoid using opencv because it is very slow in a conda environment
 		http://zulko.github.io/blog/2013/09/27/read-and-write-video-frames-in-python-using-ffmpeg/
 		'''
 		if not self.check_data():
@@ -483,19 +502,19 @@ class GUI(Tk):
 		fn_vid = os.path.join(self.cfg['save_path'],self.cfg['file_out'])+'.mp4'
 		v_shape = self.data['W_shape'][::-1][1:] # Reverse because ffmpeg does hxw
 		command = [ 'ffmpeg',
-			'-loglevel', 'warning',
+			'-loglevel', 'warning', # Prevents excessive messages
 			'-hide_banner',
-			'-y',
+			'-y', # Auto overwrite
 			'-f', 'image2pipe',
 			'-vcodec','png',
 			'-s', '{}x{}'.format(v_shape[0],v_shape[1]),
 			'-r', str(self.cfg['fr']*self.cfg['speed']/100),
 			'-i', '-', # The input comes from a pipe
 			'-an', # Tells FFMPEG not to expect any audio
-			'-q:v','2',
+			'-q:v','2', # Quality
 			'-vcodec', 'mpeg4',
 			fn_vid]
-		pipe = sp.Popen( command, stdin=sp.PIPE)
+		pipe = sp.Popen(command, stdin=sp.PIPE)
 		nframes = len(self.data['H_pp'].T)
 		for i in range(nframes):
 			frame = (self.data['W_pp']@np.diag(self.data['H_pp'][:,i])@self.cmap[:,:-1]*(255/self.cfg['brightness'])).reshape(self.data['W_shape'][0],self.data['W_shape'][1],3).clip(min=0,max=255).astype('uint8')
@@ -522,7 +541,7 @@ class GUI(Tk):
 	
 	def write_AV(self):
 		'''
-		
+		Runs full write and merge
 		'''
 		if self.check_data():
 			self.write_video()
@@ -536,12 +555,18 @@ class GUI(Tk):
 		Tries to remove any files that are video or audio only.	
 		'''
 		fn = os.path.join(self.cfg['save_path'],self.cfg['file_out'])
-		try: os.remove(fn+'.mp4')
-		except OSError: pass
-		try: os.remove(fn+'.wav')
-		except OSError: pass
-		try: os.remove(fn+'.mid')
-		except OSError: pass
+		try: 
+			os.remove(fn+'.mp4')
+		except OSError: 
+			pass
+		try: 
+			os.remove(fn+'.wav')
+		except OSError: 
+			pass
+		try: 
+			os.remove(fn+'.mid')
+		except OSError: 
+			pass
 		self.message(f'A/V only videos removed')
 		return self
 

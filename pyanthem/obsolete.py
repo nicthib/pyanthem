@@ -36,29 +36,5 @@ def synth(self):
 		raws = np.int16(raws/np.max(np.abs(raws)) * 32767)
 		wavwrite(os.path.join(self.cfg['save_path'],self.cfg['file_out'])+'.wav',fs,raws)
 		
-	def neuralstream(self):
-		'''
-		
-		'''
-		C0 = 16.352
-		fs = 44100
-		freqs = [C0*2**(i/12) for i in range(128)]
-		true_fr = (self.cfg['fr']*self.cfg['speed'])/100
-		ns = int(fs*len(self.data['H_fp'].T)/true_fr)
-		t1 = np.linspace(0,len(self.data['H_fp'].T)/self.cfg['fr'],len(self.data['H_fp'].T))
-		t2 = np.linspace(0,len(self.data['H_fp'].T)/self.cfg['fr'],ns)
-		H = np.zeros((len(t2),))
-		nchan = len(self.data['H_fp'])
-		for n in range(nchan):
-			Htmp = self.data['H_fp'][n,:]
-			Htmp[Htmp<0] = 0
-			Htmp = interp1d(t1,Htmp)(t2)
-			H += np.sin(2*np.pi*freqs[self.keys[n]]*t2)*Htmp
-			Hstr = 'H_fp'
-			if self.display:
-				self.status['text'] = f'Status: Writing audio: {n+1} out of {nchan} channels...'
-				self.update()
-		wav = np.hstack((H[:,None],H[:,None]))
-		wav = np.int16(wav/np.max(np.abs(wav)) * 32767)
-		wavwrite(os.path.join(self.cfg['save_path'],self.cfg['file_out'])+'.wav',fs,wav)
+	
 		

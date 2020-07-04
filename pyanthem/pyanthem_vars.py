@@ -76,6 +76,12 @@ sound_fonts={
 'strings':'1c0pCI0YdcFEpSLEbCW8HTzFOlJpz0HS9'
 }
 
+'''
+static variables
+'''
+
+C0 = 16.352
+fs = 44100
 
 
 
