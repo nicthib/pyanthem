@@ -40,32 +40,39 @@ git (optional):
 
 Installation
 ============
-*Note: If you do not have working versions of the above listed 
+Note: If you do not have working versions of the above listed 
 requirements, it is recommended that you use miniconda_ for a
-straightforward installation process.*
+straightforward installation process.
 
 Using miniconda:
 ----------------
 
-First, download the pyanthem.yaml config file here_. Create the environment by navigating to the pyanthem.yaml file's location, and then by running::
+First, download the pyanthem.yaml config file for Mac/Linux_, or for Windows_. 
+Create the environment by navigating to the pyanthem.yaml file's location, 
+and then by running::
 
-.. code-block:: python
+   conda env create -f pyanthem.yaml
 
-   conda env create -f pyanthem.yaml 
-   
 Next, activate the environment::
 
-.. code-block:: python
-
    conda activate pyanthem
-  
+
+If using Windows, there is an additional step, since conda-forge does not 
+have Windows binaries for fluidsynth. Download the binaries here_. After 
+unzipping, place the unzipped folder wherever you prefer, and then add
+the location of the fluidsynth-1.1.1\usr\bin folder to your PATH (see 
+`this guide`_ for adding to the PATH). For example, I added the directory:
+C:\Users\Nic\Desktop\fluidsynth-1.1.1\usr\bin to my PATH.
+   
 Using pip
 -----------
 
    python -m pip install pyanthem
 
 .. _miniconda: https://docs.conda.io/en/latest/miniconda.html
-.. _here: https://drive.google.com/file/d/1HSZyFuU_9WmGTSVoVc-DuJzMi76CMseA/view?usp=sharing
+.. _Mac/Linux: https://drive.google.com/file/d/1HSZyFuU_9WmGTSVoVc-DuJzMi76CMseA
+.. _Windows: https://drive.google.com/file/d/1HSZyFuU_9WmGTSVoVc-DuJzMi76CMseA
+.. _`this guide`: https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10/
 Usage
 =====
 
