@@ -1,4 +1,4 @@
-import os, random, sys, time, csv, pickle, re, pkg_resources
+import os, random, sys, time, csv, pickle, re, pkg_resources, Pmw
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 from tkinter import StringVar, DoubleVar, Tk, Label, Entry, Button, OptionMenu, Checkbutton, Message, Menu, IntVar, Scale, HORIZONTAL, simpledialog, messagebox, Toplevel
 from tkinter.ttk import Progressbar, Separator, Combobox
@@ -89,11 +89,15 @@ class GUI(Tk):
 		command, while display=False skips that and visual initialization, keeping
 		the GUI 'hidden'
 		'''
-		self.display = display
+		self.display=display
+		self.tooltips_on=False
 		self.download_data()
 		if self.display:
 			Tk.__init__(self)
 			self.default_font=font.nametofont("TkDefaultFont")
+			if self.tooltips_on:
+				Pmw.initialise()
+				self.balloon=Pmw.Balloon(self)
 			self.initGUI()
 	
 	def quit(self,event=None):
@@ -347,6 +351,7 @@ class GUI(Tk):
 			self.keys.extend([k+i+key_opts[self.cfg['key']]+octave_add_opts[self.cfg['octave_add']] for k in scale_keys[self.cfg['scale_type']]])
 			i+=12
 		self.keys=self.keys[:len(self.data['H_pp'])]
+		self.keys=[min(k,127) for k in self.keys] # Notes cannot be higher than 127
 
 		# Making note dict
 		true_fr = self.cfg['fr']*self.cfg['speed']/100
@@ -371,10 +376,10 @@ class GUI(Tk):
 			bn = np.ndarray.flatten(np.argwhere(np.ndarray.flatten(en-st) < 2)).tolist()
 			st = np.ndarray.flatten(st).tolist()
 			en = np.ndarray.flatten(en).tolist()
-			# Remove super short notes
-			for ii in sorted(bn, reverse=True):
-				st.pop(ii)
-				en.pop(ii)
+			# Remove super short notes (<2 ms)
+			for n in sorted(bn, reverse=True):
+				st.pop(n)
+				en.pop(n)
 			
 			self.nd['st'].extend([x/1000 for x in st])
 			self.nd['en'].extend([x/1000 for x in en])
@@ -385,16 +390,11 @@ class GUI(Tk):
 				self.nd['note'].append(self.keys[i])
 			self.data['H_pp'][self.data['H_pp'] < 0] = 0
 		# Colormap
-		if hasattr(cmaps,self.cfg['cmapchoice']):
-			cmap = getattr(cmaps,self.cfg['cmapchoice'])
-			self.cmap = cmap(np.linspace(0,1,len(self.data['H_pp'])))
-		else:
-			self.message(f'cmap {self.cfg["cmapchoice"]} not found. Please check the matplotlib documentation for a list of standard colormaps.')
-			return
+		cmap = getattr(cmaps,self.cfg['cmapchoice'])
+		self.cmap = cmap(np.linspace(0,1,len(self.data['H_pp'])))
 		if self.display:
 			self.refresh_GUI()
 		self.status['text'] = '♫ ♪ ♫ ♪ ♫'
-		
 
 	def refresh_slider(self,event):
 		'''
@@ -409,7 +409,7 @@ class GUI(Tk):
 
 	def preview_notes(self):
 		'''
-		
+		Previews the self.keys list
 		'''
 		if self.audio_format.get().endswith('.sf2') and self.check_data():
 			self.process_H_W()
@@ -632,12 +632,14 @@ class GUI(Tk):
 		Entry(textvariable=self.end_percent,width=7).grid(row=4, column=4, sticky='W')
 		Entry(textvariable=self.baseline,width=7).grid(row=5, column=4, sticky='W')
 		Entry(textvariable=self.brightness,width=7).grid(row=6, column=4, sticky='W')
-		Entry(textvariable=self.threshold,width=7).grid(row=2, column=6, sticky='W')
+		self.threshold_entry=Entry(textvariable=self.threshold,width=7)
+		self.threshold_entry.grid(row=2, column=6, sticky='W')
 
 		# Buttons
 		Button(text='Edit',command=self.edit_save_path,width=5).grid(row=6, column=2)
 		Button(text='Preview Notes',width=11,command=self.preview_notes).grid(row=7, column=5,columnspan=2)
-		Button(text='Update',width=7,font='Helvetica 14 bold',command=self.process_H_W).grid(row=9, column=1,columnspan=1)
+		self.update_button=Button(text='Update',width=7,font='Helvetica 14 bold',command=self.process_H_W)
+		self.update_button.grid(row=9, column=1,columnspan=1)
 
 		# Option/combobox values
 		audio_format_opts = ['Analog']
@@ -647,23 +649,23 @@ class GUI(Tk):
 			audio_format_opts.extend(fonts_avail)
 		
 		# Option Menus
-		octave_add_menu = OptionMenu(self,self.octave_add,*octave_add_opts.keys())
-		octave_add_menu.config(width=7)
-		octave_add_menu.grid(row=3, column=6, sticky='W')
-		scale_type_menu=OptionMenu(self,self.scale_type,*scale_keys.keys())
-		scale_type_menu.config(width=11,font=(self.default_font,(8)))
-		scale_type_menu.grid(row=4, column=6, sticky='W')
-		key_menu=OptionMenu(self,self.key,*key_opts.keys())
-		key_menu.config(width=7)
-		key_menu.grid(row=5, column=6, sticky='W')
-		audio_format_menu=OptionMenu(self,self.audio_format,*audio_format_opts)
-		audio_format_menu.config(width=7)
-		audio_format_menu.grid(row=6, column=6, sticky='W')
+		self.octave_add_menu = OptionMenu(self,self.octave_add,*octave_add_opts.keys())
+		self.octave_add_menu.config(width=7)
+		self.octave_add_menu.grid(row=3, column=6, sticky='W')
+		self.scale_type_menu=OptionMenu(self,self.scale_type,*scale_keys.keys())
+		self.scale_type_menu.config(width=11,font=(self.default_font,(8)))
+		self.scale_type_menu.grid(row=4, column=6, sticky='W')
+		self.key_menu=OptionMenu(self,self.key,*key_opts.keys())
+		self.key_menu.config(width=7)
+		self.key_menu.grid(row=5, column=6, sticky='W')
+		self.audio_format_menu=OptionMenu(self,self.audio_format,*audio_format_opts)
+		self.audio_format_menu.config(width=7)
+		self.audio_format_menu.grid(row=6, column=6, sticky='W')
 		
 		# Combo box
 		self.cmapchooser = Combobox(self,textvariable=self.cmapchoice,width=5)
 		self.cmapchooser['values'] = cmaps_opts
-		#self.cmapchooser['state'] = 'readonly'
+		self.cmapchooser['state'] = 'readonly'
 		self.cmapchooser.grid(row=7, column=4, sticky='W')
 		self.cmapchooser.current()
 		self.cmap = []
@@ -715,6 +717,15 @@ class GUI(Tk):
 		self.bind_all("<Control-q>", self.quit)
 		self.bind_all("<Control-a>", lambda:[self.process_H_W(),self.refresh_GUI()])
 
+		# tooltips
+		if self.tooltips_on:
+			self.balloon.bind(self.octave_add_menu,'Sets which octave notes begin at. \nHigher values produce higher pitched notes.')
+			self.balloon.bind(self.scale_type_menu,'Scale type for audio - higher notes/oct are recommended for high component datasets.')
+			self.balloon.bind(self.key_menu,'Musical key for audio')
+			self.balloon.bind(self.cmapchooser,'Color map for visualization.')
+			self.balloon.bind(self.threshold_entry,'Minimum value H must reach before rendering an audible note.')
+			self.balloon.bind(self.update_button,'Redraws plots using current config options.')
+
 	def init_plots(self):
 		'''
 		
@@ -753,6 +764,10 @@ class GUI(Tk):
 		# Wshow
 		Label(text='Components to show:').grid(row=30, column=3, columnspan=3, sticky='E')
 		Entry(textvariable=self.Wshow,width=15,justify='center').grid(row=30, column=5, columnspan=2,sticky='E')
+
+		# tooltips
+		if self.tooltips_on:
+			self.balloon.bind(self.offsetH, '(Checked) Display lines one seperate y-axes\n(Unchecked) Display all lines with the same y-axis')
 
 	def process_raw(self,file_in=None,n_clusters=None,frame_rate=None,save=False):
 		'''
