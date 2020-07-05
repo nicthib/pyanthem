@@ -5,7 +5,7 @@ with open('README.rst', 'r') as fh:
 
 setuptools.setup(
 	name='pyanthem',
-	version='0.67',
+	version='0.68',
 	author='Nic Thibodeaux',
 	author_email='dnt2111@columbia.edu',
 	description='pyanthem - a neuroimaging audiovisualiation tool.',
@@ -32,5 +32,5 @@ setuptools.setup(
 		'License :: OSI Approved :: MIT License',
 		'Operating System :: OS Independent',
 	],
-	python_requires='>=3.6',
+	python_requires='>=3.7',
 )

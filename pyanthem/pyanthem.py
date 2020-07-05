@@ -81,7 +81,7 @@ def run(display=True):
 	if display:
 		root.mainloop()
 	else:
-		print('Welcome to pyanthem v{}!'.format(pkg_resources.require("pyanthem")[0].version))
+		print('pyanthem v{}'.format(pkg_resources.require("pyanthem")[0].version))
 		return root
 
 class GUI(Tk):
@@ -93,7 +93,7 @@ class GUI(Tk):
 		'''
 		self.display=display
 		self.tooltips_on=False
-		self.download_data()
+		download_soundfont(sound_fonts)
 		if self.display:
 			Tk.__init__(self)
 			self.default_font=font.nametofont("TkDefaultFont")

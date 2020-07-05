@@ -1,8 +1,6 @@
 midiutil
-GitPython
 matplotlib
 pygame
-opencv-python
 sklearn
 requests
 googledrivedownloader
