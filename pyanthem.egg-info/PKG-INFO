@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: pyanthem
-Version: 0.63
+Version: 0.66
 Summary: pyanthem - a neuroimaging audiovisualiation tool.
 Home-page: https://github.com/nicthib/pyanthem
 Author: Nic Thibodeaux
@@ -20,7 +20,7 @@ Description: *******************************************************************
         Requirements
         ============
         Python 3:
-           Currently, pyanthem is tested to work on Python_ 3.6+. This will be 
+           Currently, pyanthem is tested to work on Python_ 3.7+. This will be 
            updated as more versions are tested.
         
         pip:
@@ -29,59 +29,63 @@ Description: *******************************************************************
            see the  `pip installation`_ page for instructions if you do not 
            have pip.
         
+        ffmpeg:
+           ffmpeg_ enables video creation and merging.
+        
+        fluidsynth (optional, but **highly recommended**)
+           fluidsynth_ is a powerful software synthesizer, which enables 
+           conversion of data to crisp, high quality sound files.
+        
         git (optional):
           git_ allows pyanthem to download external audio files quickly and 
           easily.
-        
-        ffmpeg (optional):
-           ffmpeg_ enables merging video and audio files into a single output.
-        
+          
         .. _Python: https://www.python.org/
-        .. _pip installation: https://pip.pypa.io/en/latest/installing/
+        .. _`pip installation`: https://pip.pypa.io/en/latest/installing/
         .. _git: https://git-scm.com/
         .. _ffmpeg: https://ffmpeg.org/
+        .. _fluidsynth: http://www.fluidsynth.org/
         
         Installation
         ============
-        Basic installation using pip::
+        Note: If you do not have working versions of the above listed 
+        requirements, it is recommended that you use miniconda_ or Anaconda_ for a
+        straightforward installation process.
+        
+        Using Miniconda/Anaconda:
+        ----------------
+        
+        First, download the `pyanthem.yaml`_ config file. 
+        Create the environment by navigating to the pyanthem.yaml file's location, 
+        and then by running::
+        
+           conda env create -f pyanthem.yaml
+        
+        Next, activate the environment::
+        
+           conda activate pyanthem
+           
+        Using pip
+        ---------
+        
+        If you already have the requirements installed, install pyanthem using pip::
         
            python -m pip install pyanthem
-           
-        Installation of "Piano" audio engine using git/GitPython::
         
-           import pyanthem
-           pyanthem.AE_download()
+        .. _miniconda: https://docs.conda.io/en/latest/miniconda.html
+        .. _Anaconda: https://www.anaconda.com/products/individual
+        .. _`pyanthem.yaml`: https://drive.google.com/file/d/1HSZyFuU_9WmGTSVoVc-DuJzMi76CMseA
+        .. _`this guide`: https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10/
+        .. _here: https://github.com/nicthib/FluidSynth-Windows-Builds/archive/v1.zip
         
         Usage
         =====
         
-        
-        Contributing
-        ============
-        
-        Step 1
-        ------
-        - **Option 1**
-            - Fork this repo!
-        
-        - **Option 2**
-            - Clone this repo to your local machine using 
-            
-            ```python
-            git clone https://github.com/nicthib/pyanthem.git
-            ```
-        
-        Step 2
-        ------
-        - Improve this repo!
-        
-        Step 3
-        ------
-        
-        - Create a new pull request using `<https://github.com/nicthib/pyanthem/compare/>`_
+        Under construction!
+        -------------------
         
         Team
-        ----
+        ====
         
         .. |niclogo| image:: https://avatars1.githubusercontent.com/u/34455769?v=3&s=200
         
@@ -90,14 +94,16 @@ Description: *******************************************************************
         
            |niclogo|
             `<http://github.com/nicthib>`
+        
         FAQ
-        ---
+        ===
         
         - **How do I do *specifically* so and so?**
             - No problem! Just do this.
         
         Support
-        -------
+        =======
+        
         - Twitter: `@nicthibs`_
         
         .. _`@nicthibs`: http://twitter.com/nicthibs

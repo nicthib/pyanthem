@@ -5,7 +5,7 @@ with open('README.rst', 'r') as fh:
 
 setuptools.setup(
 	name='pyanthem',
-	version='0.63',
+	version='0.67',
 	author='Nic Thibodeaux',
 	author_email='dnt2111@columbia.edu',
 	description='pyanthem - a neuroimaging audiovisualiation tool.',
@@ -18,14 +18,13 @@ setuptools.setup(
 		'scipy'],
 	install_requires=[
 		'midiutil',
-		'GitPython',
 		'matplotlib',
 		'pygame',
-		'opencv-python',
 		'sklearn',
 		'requests',
 		'googledrivedownloader',
 		'pillow',
+		'Pmw'
 	  ],
 	include_package_data=True,
 	classifiers=[

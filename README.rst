@@ -66,8 +66,7 @@ If you already have the requirements installed, install pyanthem using pip::
 
 .. _miniconda: https://docs.conda.io/en/latest/miniconda.html
 .. _Anaconda: https://www.anaconda.com/products/individual
-.. _`pyanthem.yaml`: https://drive.google.com/file/d/1HSZyFuU_9WmGTSVoVc-DuJzMi76CMseA
-.. _`this guide`: https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10/
+.. _`pyanthem.yaml`: https://drive.google.com/file/d/1N7TB3Fypdwr8Aw1dQDSjyxit5Y-0mLZs
 .. _here: https://github.com/nicthib/FluidSynth-Windows-Builds/archive/v1.zip
 
 Usage

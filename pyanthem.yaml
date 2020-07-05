@@ -9,10 +9,10 @@ name: pyanthem
 channels:
   - defaults
   - conda-forge
+  - nicthib
 dependencies:
   - python=3.7
   - pip
-  - git
   - ffmpeg
   - pip:
     - pyanthem

@@ -7,3 +7,4 @@ sklearn
 requests
 googledrivedownloader
 pillow
+Pmw

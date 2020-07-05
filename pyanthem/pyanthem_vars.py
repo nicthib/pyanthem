@@ -71,7 +71,6 @@ Google drive id's for .sf2 files from https://sites.google.com/site/soundfonts4u
 '''
 sound_fonts={
 'piano_small':'12WYF3pc_kYI5myMjgEUnb-y2CeX3fucx',
-'piano_large':'1DEKLuSiJ4QsHdipfzQdKGsmFn5_4ipOL',
 'e-piano':'0B4_6p-MMrzwLeTBfNzl1SmVVSEU',
 'strings':'1c0pCI0YdcFEpSLEbCW8HTzFOlJpz0HS9'
 }

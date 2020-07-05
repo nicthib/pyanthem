@@ -21,26 +21,9 @@ try:
 	from pyanthem.pyanthem_vars import *
 except:
 	from pyanthem_vars import *
-from git import Repo
 from google_drive_downloader import GoogleDriveDownloader as gdd
 import subprocess as sp
 import PIL.Image as Image
-
-def download_soundfont(font):
-	'''
-	Downloads soundfonts from https://sites.google.com/site/soundfonts4u/
-	'''
-	sf_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),'anthem_soundfonts')
-	if not os.path.isdir(sf_path):
-		os.mkdir(sf_path)
-	try:
-		if not os.path.isfile(os.path.join(sf_path,font+'.sf2')):
-			gdd.download_file_from_google_drive(file_id=sound_fonts[font],dest_path=os.path.join(sf_path,font+'.sf2'))
-			print(f'Sound font {font} downloaded to soundfont library.')
-		else:
-			print(f'Sound font {font} already present in soundfont library.')
-	except:
-		print(f'Sound font {font} is not available font. Please choose from these: {sound_fonts.keys()}')
 
 def init_entry(fn):
 	'''
@@ -70,6 +53,25 @@ def uiopen(title,filetypes):
 	root.update()
 	root.destroy()
 	return file_in
+
+def download_soundfont(fonts):
+	'''
+	Downloads soundfonts from https://sites.google.com/site/soundfonts4u/
+	'''
+	if type(fonts) is not list:
+		fonts = [fonts]
+	sf_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),'anthem_soundfonts')
+	if not os.path.isdir(sf_path):
+		os.mkdir(sf_path)
+	try:
+		for font in fonts:
+			if not os.path.isfile(os.path.join(sf_path,font+'.sf2')):
+				gdd.download_file_from_google_drive(file_id=sound_fonts[font],dest_path=os.path.join(sf_path,font+'.sf2'))
+				print(f'Sound font {font} downloaded to soundfont library.')
+			else:
+				print(f'Sound font {font} already present in soundfont library.')
+	except:
+		print(f'Sound font {font} is not available font. Please choose from these: {sound_fonts.keys()}')
 
 def run(display=True):
 	'''
@@ -153,19 +155,7 @@ class GUI(Tk):
 			self.cfginfo.update()
 
 
-	def download_data(self):
-		'''
-		Downloads example datasets from https://github.com/nicthib/anthem_datasets
-		'''
-		path = os.path.join(os.path.dirname(os.path.abspath(__file__)),'anthem_datasets')
-		if not os.path.isdir(path):
-			print('Detected new installation. Downloading example datasets...')
-			try:
-				Repo.clone_from('https://github.com/nicthib/anthem_datasets.git',path)
-				print(f'Example datasets downloaded to {path}')
-			except:
-				print('ERROR: git executable not present. Please visit https://git-scm.com/downloads to install.')
-
+	
 	def load_data(self,filein=None):
 		'''
 		loads dataset from filein. At the time, only supports .mat files.
