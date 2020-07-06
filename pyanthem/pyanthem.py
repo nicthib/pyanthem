@@ -1,5 +1,5 @@
 import os, random, sys, time, csv, pickle, re, pkg_resources, Pmw
-os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT']="hide"
 from tkinter import StringVar, DoubleVar, Tk, Label, Entry, Button, OptionMenu, Checkbutton, Message, Menu, IntVar, Scale, HORIZONTAL, simpledialog, messagebox, Toplevel
 from tkinter.ttk import Progressbar, Separator, Combobox
 from tkinter import filedialog as fd 
@@ -30,9 +30,9 @@ def init_entry(fn):
 	Generalized version of StringVar/DoubleVar followed by set()
 	'''
 	if isinstance(fn, str):
-		entry = StringVar()
+		entry=StringVar()
 	else:
-		entry = DoubleVar()
+		entry=DoubleVar()
 	entry.set(fn)
 	return entry
 
@@ -40,44 +40,39 @@ def stack_videos(videos,fn='output.mp4'):
 	'''
 	Stacks .mp4 videos horizontally (and combines audio)
 	'''
-	nvids = len(videos)
-	instr = ''
+	nvids=len(videos)
+	instr=''
 	for i in range(len(videos)):
 		instr += ' -i '+videos[i]
 	os.system('ffmpeg -y '+instr+' -filter_complex "[0:v][1:v]hstack=inputs='+str(nvids)+'[v]; [0:a][1:a]amerge[a]" -map "[v]" -map "[a]" -ac 2 '+fn)
 
 def uiopen(title,filetypes):
-	root = Tk()
+	root=Tk()
 	root.withdraw()
-	file_in = os.path.normpath(fd.askopenfilename(title=title,filetypes=filetypes))
+	file_in=os.path.normpath(fd.askopenfilename(title=title,filetypes=filetypes))
 	root.update()
 	root.destroy()
 	return file_in
 
-def download_soundfont(fonts):
+def download_soundfont(name):
 	'''
 	Downloads soundfonts from https://sites.google.com/site/soundfonts4u/
 	'''
-	if type(fonts) is not list:
-		fonts = [fonts]
-	sf_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),'anthem_soundfonts')
-	if not os.path.isdir(sf_path):
-		os.mkdir(sf_path)
+	sf_path=os.path.join(os.path.dirname(os.path.abspath(__file__)),'anthem_soundfonts')
 	try:
-		for font in fonts:
-			if not os.path.isfile(os.path.join(sf_path,font+'.sf2')):
-				gdd.download_file_from_google_drive(file_id=sound_fonts[font],dest_path=os.path.join(sf_path,font+'.sf2'))
-				print(f'Sound font {font} downloaded to soundfont library.')
-			else:
-				print(f'Sound font {font} already present in soundfont library.')
+		if not os.path.isfile(os.path.join(sf_path,name+'.sf2')):
+			gdd.download_file_from_google_drive(file_id=sound_fonts[name],dest_path=os.path.join(sf_path,name+'.sf2'),showsize=True)
+			print(f'Sound font "{name}.sf2" downloaded to soundfont library.')
+		else:
+			print(f'Sound font "{name}.sf2" already present in soundfont library.')
 	except:
-		print(f'Sound font {font} is not available font. Please choose from these: {sound_fonts.keys()}')
+		print(f'Sound font "{name}.sf2" is not an available font. Please choose from these: {sound_fonts.keys()}')
 
 def run(display=True):
 	'''
 	Main command to run GUI or CLI
 	'''
-	root = GUI(display=display)
+	root=GUI(display=display)
 	if display:
 		root.mainloop()
 	else:
@@ -93,7 +88,12 @@ class GUI(Tk):
 		'''
 		self.display=display
 		self.tooltips_on=False
-		download_soundfont(sound_fonts)
+		self.sf_path=os.path.join(os.path.dirname(os.path.abspath(__file__)),'anthem_soundfonts')
+		if not os.path.isdir(self.sf_path):
+			print('Initializing soundfont library...')
+			os.mkdir(self.sf_path)
+		for f in sound_fonts.keys():
+			download_soundfont(f)
 		if self.display:
 			Tk.__init__(self)
 			self.default_font=font.nametofont("TkDefaultFont")
@@ -119,7 +119,7 @@ class GUI(Tk):
 		Sends message through print if no GUI, through self.status if GUI is running
 		'''
 		if self.display:
-			self.status['text'] = message
+			self.status['text']=message
 		else:
 			print(message)
 
@@ -146,7 +146,7 @@ class GUI(Tk):
 		all StringVars and IntVars to a new dict called 'self.cfg', that can be accessed 
 		oustide the GUI and dumped to a pickle file, which essentially "freezes" the GUI.
 		'''
-		self.cfg = {k: getattr(self,k).get() if self_fns[k] is 'entry' else getattr(self,k) for k in self_fns}
+		self.cfg={k: getattr(self,k).get() if self_fns[k] is 'entry' else getattr(self,k) for k in self_fns}
 		if hasattr(self,'cfginfo'):
 			text=''
 			for key in self.cfg:
@@ -164,11 +164,11 @@ class GUI(Tk):
 			filein=uiopen(title='Select .mat file for import',filetypes=[('.mat files','*.mat')])
 		if filein == '.':
 			return
-		self.data = loadmat(filein)
+		self.data=loadmat(filein)
 		try:
-			self.data['W_shape'] = self.data['W'].shape
-			self.data['W'] = self.data['W'].reshape(self.data['W'].shape[0]*self.data['W'].shape[1],self.data['W'].shape[2])
-			self.data['fr'] = float(self.data['fr'])
+			self.data['W_shape']=self.data['W'].shape
+			self.data['W']=self.data['W'].reshape(self.data['W'].shape[0]*self.data['W'].shape[1],self.data['W'].shape[2])
+			self.data['fr']=float(self.data['fr'])
 			if not self.display:
 				return self
 		except:
@@ -182,19 +182,19 @@ class GUI(Tk):
 		if filein == '.':
 			return
 		self.load_data(filein)
-		self.data['H_pp'] = self.data['H']
-		self.data['H_fp'] = self.data['H']
-		self.data['W_pp'] = self.data['W']
+		self.data['H_pp']=self.data['H']
+		self.data['H_fp']=self.data['H']
+		self.data['W_pp']=self.data['W']
 		self.fr.set(self.data['fr'])
 		self.file_in.set(os.path.splitext(os.path.split(filein)[1])[0])
 
 		# Set some defaults
 		self.file_out.set(self.file_in.get())
 		self.save_path.set(os.path.split(filein)[0])
-		Hstr = 'H' # for whatever reason, can't double nest quotations in an f-string :/
+		Hstr='H' # for whatever reason, can't double nest quotations in an f-string :/
 		self.brightness.set(f'{float(f"{np.mean(self.data[Hstr])+np.std(self.data[Hstr]):.3g}"):g}')
 		self.threshold.set(f'{float(f"{np.mean(self.data[Hstr])+np.std(self.data[Hstr]):.3g}"):g}')
-		self.Wshow_arr = list(range(len(self.data['H'])))
+		self.Wshow_arr=list(range(len(self.data['H'])))
 		self.process_H_W()
 		self.init_plots()
 		self.refresh_GUI()
@@ -204,7 +204,7 @@ class GUI(Tk):
 		Saves config file. This is run every time a user calls write_audio() or write_video()
 		'''
 		if self.check_data():
-			file_out = os.path.join(self.cfg['save_path'],self.cfg['file_out'])+'_cfg.p'
+			file_out=os.path.join(self.cfg['save_path'],self.cfg['file_out'])+'_cfg.p'
 			pickle.dump(self.cfg,open(file_out, "wb"))
 			self.message(f'cfg file saved to {file_out}')
 	
@@ -217,7 +217,7 @@ class GUI(Tk):
 		if filein == '.':
 			return
 		with open(filein, "rb") as f:
-			self.cfg = pickle.load(f)
+			self.cfg=pickle.load(f)
 			if self.display:
 				for key,value in self.cfg.items():
 					if self_fns[key] is 'entry':
@@ -239,28 +239,28 @@ class GUI(Tk):
 		# Update slider (Need to move the command)
 		if self.frameslider.get() > len(self.data['H_pp'].T): # This (usually) occurs when the user crops the dataset
 			self.frameslider.set(1)
-		self.frameslider['to'] = int(len(self.data['H_pp'].T)-1)
+		self.frameslider['to']=int(len(self.data['H_pp'].T)-1)
 
-		Hstd = self.data['H_pp'].std()*3
+		Hstd=self.data['H_pp'].std()*3
 		if self.offsetH.get():
-			tmpH = self.data['H_pp'].T - repmat([w*Hstd for w in list(range(len(self.Wshow_arr)))],len(self.data['H_pp'].T),1)
+			tmpH=self.data['H_pp'].T - repmat([w*Hstd for w in list(range(len(self.Wshow_arr)))],len(self.data['H_pp'].T),1)
 		else:
-			tmpH = self.data['H_pp'].T
+			tmpH=self.data['H_pp'].T
 
-		self.H_plot = self.Hax1.plot(tmpH,linewidth=.5)
+		self.H_plot=self.Hax1.plot(tmpH,linewidth=.5)
 		for i,j in enumerate(self.Hax1.lines):
 			j.set_color(self.cmap[i])
 		if not self.offsetH.get():
-			thresh_line = self.Hax1.plot(np.ones((len(self.data['H_pp'].T,)))*self.cfg['threshold'],linestyle='dashed',color='0',linewidth=1)
-			zero_line = self.Hax1.plot(np.zeros((len(self.data['H_pp'].T,))),linestyle='dashed',color='.5',linewidth=1)
-			self.legend = self.Hax1.legend((thresh_line[0],), ('Threshold',))
-			#self.legend = self.Hax1.legend((thresh_line[0],zero_line[0]), ('Threshold','Baseline'))
+			thresh_line=self.Hax1.plot(np.ones((len(self.data['H_pp'].T,)))*self.cfg['threshold'],linestyle='dashed',color='0',linewidth=1)
+			zero_line=self.Hax1.plot(np.zeros((len(self.data['H_pp'].T,))),linestyle='dashed',color='.5',linewidth=1)
+			self.legend=self.Hax1.legend((thresh_line[0],), ('Threshold',))
+			#self.legend=self.Hax1.legend((thresh_line[0],zero_line[0]), ('Threshold','Baseline'))
 
 		if self.cfg['audio_format'] == 'Analog':
-			self.H_p_plot = self.Hax2.imshow(self.data['H_pp'],interpolation='none',cmap=plt.get_cmap('gray'))
+			self.H_p_plot=self.Hax2.imshow(self.data['H_pp'],interpolation='none',cmap=plt.get_cmap('gray'))
 			self.H_p_plot.set_clim(0, np.max(self.data['H_pp']))
 		else:
-			self.H_p_plot = self.Hax2.imshow(self.data['H_fp'],interpolation='none',cmap=plt.get_cmap('gray'))
+			self.H_p_plot=self.Hax2.imshow(self.data['H_fp'],interpolation='none',cmap=plt.get_cmap('gray'))
 
 		self.Hax2.xaxis.set_major_formatter(tkr.FuncFormatter(lambda x, pos: '{:.2g}'.format(x/self.cfg['fr'])))
 		self.Hax2.set(xlabel='time (sec)',ylabel='Component #')
@@ -281,11 +281,11 @@ class GUI(Tk):
 		self.Hax1.tick_params(axis='x',which='both',bottom=False, top=False, labelbottom=False, right=False)
 
 		if len(self.Wshow_arr) > 12:
-			yticks = np.arange(4,len(self.data['H_pp']),5)
-			yticklabels = np.arange(4,len(self.data['H_pp']),5)
+			yticks=np.arange(4,len(self.data['H_pp']),5)
+			yticklabels=np.arange(4,len(self.data['H_pp']),5)
 		else:
-			yticks = np.arange(0,len(self.data['H_pp']),1)
-			yticklabels = np.arange(0,len(self.data['H_pp']),1)
+			yticks=np.arange(0,len(self.data['H_pp']),1)
+			yticklabels=np.arange(0,len(self.data['H_pp']),1)
 
 		if self.offsetH.get():
 			self.Hax1.set(yticks=-yticks*Hstd,yticklabels=yticklabels)
@@ -296,8 +296,8 @@ class GUI(Tk):
 		self.Hax2.spines['right'].set_visible(False)
 		self.Hax2.yaxis.tick_right()
 		self.Hax2.yaxis.set_label_position("right")
-		self.imWH = self.Wax1.imshow((self.data['W_pp']@np.diag(self.data['H_pp'][:,self.frameslider.get()])@self.cmap[:,:-1]*(255/self.cfg['brightness'])).reshape(self.data['W_shape'][0],self.data['W_shape'][1],3).clip(min=0,max=255).astype('uint8'))
-		self.imW = self.Wax2.imshow((self.data['W_pp']@self.cmap[:,:-1]*255/np.max(self.data['W_pp'])).reshape(self.data['W_shape'][0],self.data['W_shape'][1],3).clip(min=0,max=255).astype('uint8'))
+		self.imWH=self.Wax1.imshow((self.data['W_pp']@np.diag(self.data['H_pp'][:,self.frameslider.get()])@self.cmap[:,:-1]*(255/self.cfg['brightness'])).reshape(self.data['W_shape'][0],self.data['W_shape'][1],3).clip(min=0,max=255).astype('uint8'))
+		self.imW=self.Wax2.imshow((self.data['W_pp']@self.cmap[:,:-1]*255/np.max(self.data['W_pp'])).reshape(self.data['W_shape'][0],self.data['W_shape'][1],3).clip(min=0,max=255).astype('uint8'))
 		
 		self.H_p_plot.axes.set_aspect('auto')
 		self.imW.axes.set_aspect('equal')
@@ -305,7 +305,7 @@ class GUI(Tk):
 		self.canvas_H.draw()
 		self.canvas_W.draw()
 		self.refresh_slider([])
-		self.status['text'] = '♫ ♪ ♫ ♪ ♫'
+		self.status['text']='♫ ♪ ♫ ♪ ♫'
 
 	def process_H_W(self):
 		'''
@@ -315,28 +315,28 @@ class GUI(Tk):
 		'''
 		if self.display:
 			self.self_to_cfg()
-		self.status['text'] = 'Updating...'
+		self.status['text']='Updating...'
 		self.update()
 		if self.cfg['Wshow'] == 'all':
-			self.Wshow_arr = list(range(len(self.data['H'])))
+			self.Wshow_arr=list(range(len(self.data['H'])))
 		# regex expression which lazily checks for a bracketed expression containing numbers, colons and commas.
 		elif re.match('^\[[0-9,: ]*\]$',self.cfg['Wshow']) is not None:
 			# This is a magic function which transforms bracketed string arrays to actual numpy arrays.
 			# Example: '[1,3,5:8]' --> array([1,3,5,6,7])
-			self.Wshow_arr = eval('np.r_'+self.cfg['Wshow']) 
+			self.Wshow_arr=eval('np.r_'+self.cfg['Wshow']) 
 			# Edge case
 			if np.max(w) <= len(self.data['H']):
-				self.Wshow_arr = np.asarray(list(range(len(self.data['H']))))[w]
+				self.Wshow_arr=np.asarray(list(range(len(self.data['H']))))[w]
 		else:
 			self.message('For \'components to show\', please input indices with commas and colons enclosed by square brackets, or \'all\' for all components.')
 			return
 		
-		self.data['H_pp'] = self.data['H'][self.Wshow_arr,int(len(self.data['H'].T)*self.cfg['start_percent']/100):int(len(self.data['H'].T)*self.cfg['end_percent']/100)]
-		self.data['H_pp'] = self.data['H_pp']+self.cfg['baseline']
-		self.data['W_pp'] = self.data['W'][:,self.Wshow_arr]
+		self.data['H_pp']=self.data['H'][self.Wshow_arr,int(len(self.data['H'].T)*self.cfg['start_percent']/100):int(len(self.data['H'].T)*self.cfg['end_percent']/100)]
+		self.data['H_pp']=self.data['H_pp']+self.cfg['baseline']
+		self.data['W_pp']=self.data['W'][:,self.Wshow_arr]
 		
 		# make_keys()
-		self.keys,i = [],0
+		self.keys,i=[],0
 		while len(self.keys) < len(self.data['H_pp']):
 			self.keys.extend([k+i+key_opts[self.cfg['key']]+octave_add_opts[self.cfg['octave_add']] for k in scale_keys[self.cfg['scale_type']]])
 			i+=12
@@ -344,28 +344,28 @@ class GUI(Tk):
 		self.keys=[min(k,127) for k in self.keys] # Notes cannot be higher than 127
 
 		# Making note dict
-		true_fr = self.cfg['fr']*self.cfg['speed']/100
-		ns = int(len(self.data['H_pp'].T)*1000/true_fr)
-		t1 = np.linspace(0,len(self.data['H_pp'].T)/self.cfg['fr'],len(self.data['H_pp'].T))
-		t2 = np.linspace(0,len(self.data['H_pp'].T)/self.cfg['fr'],ns)
-		nchan = len(self.data['H_pp'])
-		Hmax = np.max(self.data['H_pp'])
-		self.data['H_fp'] = np.zeros(np.shape(self.data['H_pp']))
-		self.nd = {}
-		self.nd['st'],self.nd['en'],self.nd['note'],self.nd['mag'] = [],[],[],[]
+		true_fr=self.cfg['fr']*self.cfg['speed']/100
+		ns=int(len(self.data['H_pp'].T)*1000/true_fr)
+		t1=np.linspace(0,len(self.data['H_pp'].T)/self.cfg['fr'],len(self.data['H_pp'].T))
+		t2=np.linspace(0,len(self.data['H_pp'].T)/self.cfg['fr'],ns)
+		nchan=len(self.data['H_pp'])
+		Hmax=np.max(self.data['H_pp'])
+		self.data['H_fp']=np.zeros(np.shape(self.data['H_pp']))
+		self.nd={}
+		self.nd['st'],self.nd['en'],self.nd['note'],self.nd['mag']=[],[],[],[]
 		for i in range(nchan):
-			H_rs = interp1d(t1,self.data['H_pp'][i,:])(t2)
-			H_b = H_rs.copy()
-			H_b[H_b<self.cfg['threshold']] = 0
-			H_b[H_b>=self.cfg['threshold']] = 1
-			H_b[0] = 0
-			H_b[-1] = 0
-			TC = np.diff(H_b)
-			st = np.argwhere(TC == 1)
-			en = np.argwhere(TC == -1)
-			bn = np.ndarray.flatten(np.argwhere(np.ndarray.flatten(en-st) < 2)).tolist()
-			st = np.ndarray.flatten(st).tolist()
-			en = np.ndarray.flatten(en).tolist()
+			H_rs=interp1d(t1,self.data['H_pp'][i,:])(t2)
+			H_b=H_rs.copy()
+			H_b[H_b<self.cfg['threshold']]=0
+			H_b[H_b>=self.cfg['threshold']]=1
+			H_b[0]=0
+			H_b[-1]=0
+			TC=np.diff(H_b)
+			st=np.argwhere(TC == 1)
+			en=np.argwhere(TC == -1)
+			bn=np.ndarray.flatten(np.argwhere(np.ndarray.flatten(en-st) < 2)).tolist()
+			st=np.ndarray.flatten(st).tolist()
+			en=np.ndarray.flatten(en).tolist()
 			# Remove super short notes (<2 ms)
 			for n in sorted(bn, reverse=True):
 				st.pop(n)
@@ -374,17 +374,17 @@ class GUI(Tk):
 			self.nd['st'].extend([x/1000 for x in st])
 			self.nd['en'].extend([x/1000 for x in en])
 			for j in range(len(st)):
-				mag = np.max(H_rs[st[j]:en[j]])
-				self.data['H_fp'][i,int(st[j]*true_fr/1000):int(en[j]*true_fr/1000)] = mag
+				mag=np.max(H_rs[st[j]:en[j]])
+				self.data['H_fp'][i,int(st[j]*true_fr/1000):int(en[j]*true_fr/1000)]=mag
 				self.nd['mag'].append(int(mag * 127 / Hmax))
 				self.nd['note'].append(self.keys[i])
-			self.data['H_pp'][self.data['H_pp'] < 0] = 0
+			self.data['H_pp'][self.data['H_pp'] < 0]=0
 		# Colormap
-		cmap = getattr(cmaps,self.cfg['cmapchoice'])
-		self.cmap = cmap(np.linspace(0,1,len(self.data['H_pp'])))
+		cmap=getattr(cmaps,self.cfg['cmapchoice'])
+		self.cmap=cmap(np.linspace(0,1,len(self.data['H_pp'])))
 		if self.display:
 			self.refresh_GUI()
-		self.status['text'] = '♫ ♪ ♫ ♪ ♫'
+		self.status['text']='♫ ♪ ♫ ♪ ♫'
 
 	def refresh_slider(self,event):
 		'''
@@ -399,34 +399,34 @@ class GUI(Tk):
 
 	def preview_notes(self):
 		'''
-		Previews the self.keys list
+		Previews the self.keys list audibly and visually simultaneously.
 		'''
 		if self.audio_format.get().endswith('.sf2') and self.check_data():
 			self.process_H_W()
 			self.message('Previewing notes...')
-			fn_font = os.path.join(os.path.dirname(os.path.abspath(__file__)),'anthem_soundfonts',self.audio_format.get())
-			fn_midi = os.path.join(os.path.dirname(os.path.abspath(__file__)),'preview.mid')
-			fn_wav = os.path.join(os.path.dirname(os.path.abspath(__file__)),'preview.wav')
+			fn_font=os.path.join(os.path.dirname(os.path.abspath(__file__)),'anthem_soundfonts',self.audio_format.get())
+			fn_midi=os.path.join(os.path.dirname(os.path.abspath(__file__)),'preview.mid')
+			fn_wav=os.path.join(os.path.dirname(os.path.abspath(__file__)),'preview.wav')
 			if get_init() is None: # Checks if pygame has initialized audio engine. Only needs to be run once per instance
 				pre_init(fs, -16, 2, 1024)
 				init()
 				set_num_channels(128) # We will never need more than 128...
-			MIDI = MIDIFile(1)  # One track
+			MIDI=MIDIFile(1)  # One track
 			MIDI.addTempo(0,0,60) # addTempo(track, time, tempo)
 			for i in range(len(self.keys)):
 				MIDI.addNote(0, 0, self.keys[i], i/2, .5, 100)
 			with open(fn_midi, 'wb') as mid:
 				MIDI.writeFile(mid)
-			cmd = 'fluidsynth -ni -F {} -r {} {} {} '.format(fn_wav,fs,fn_font,fn_midi)
+			cmd='fluidsynth -ni -F {} -r {} {} {} '.format(fn_wav,fs,fn_font,fn_midi)
 			print(cmd)
 			os.system(cmd)
 			music.load(fn_wav)
 			for i in range(len(self.keys)):
-				t = time.time()
+				t=time.time()
 				self.imW.remove()
-				Wtmp = self.data['W_pp'][:,i]
-				cmaptmp = self.cmap[i,:-1]
-				self.imW = self.Wax2.imshow((Wtmp[:,None]@cmaptmp[None,:]*255/np.max(self.data['W_pp'])).reshape(self.data['W_shape'][0],self.data['W_shape'][1],3).clip(min=0,max=255).astype('uint8'))
+				Wtmp=self.data['W_pp'][:,i]
+				cmaptmp=self.cmap[i,:-1]
+				self.imW=self.Wax2.imshow((Wtmp[:,None]@cmaptmp[None,:]*255/np.max(self.data['W_pp'])).reshape(self.data['W_shape'][0],self.data['W_shape'][1],3).clip(min=0,max=255).astype('uint8'))
 				self.canvas_W.draw()
 				self.update()
 				if i == 0:
@@ -440,15 +440,15 @@ class GUI(Tk):
 
 	def write_audio(self):
 		'''
-		
+		Writes audio either from .sf2 using fluidsynth or into raw file.
 		'''
 		if not self.check_data():
 			return
 		self.process_H_W()
 		if self.cfg['audio_format'] == 'MIDI' or self.cfg['audio_format'].endswith('.sf2'):
-			fn_midi = os.path.join(self.cfg['save_path'],self.cfg['file_out'])+'.mid'
-			fn_wav = os.path.join(self.cfg['save_path'],self.cfg['file_out'])+'.wav'
-			MIDI = MIDIFile(1)  # One track
+			fn_midi=os.path.join(self.cfg['save_path'],self.cfg['file_out'])+'.mid'
+			fn_wav=os.path.join(self.cfg['save_path'],self.cfg['file_out'])+'.wav'
+			MIDI=MIDIFile(1)  # One track
 			MIDI.addTempo(0,0,60) # addTempo(track, time, tempo)
 			for j in range(len(self.nd['note'])):
 				# addNote(track, channel, pitch, time + i, duration, volume)
@@ -456,27 +456,27 @@ class GUI(Tk):
 			with open(fn_midi, 'wb') as mid:
 				MIDI.writeFile(mid)
 		if self.cfg['audio_format'].endswith('.sf2'):
-			fn_font = os.path.join(os.path.dirname(os.path.abspath(__file__)),'anthem_soundfonts',self.cfg['audio_format'])
+			fn_font=os.path.join(os.path.dirname(os.path.abspath(__file__)),'anthem_soundfonts',self.cfg['audio_format'])
 			os.system('fluidsynth -ni -F {} -r {} {} {}'.format(fn_wav,fs,fn_font,fn_midi))
 		elif self.cfg['audio_format'] == 'Analog':
-			freqs = [C0*2**(i/12) for i in range(128)]
-			true_fr = (self.cfg['fr']*self.cfg['speed'])/100
-			ns = int(fs*len(self.data['H_fp'].T)/true_fr)
-			t1 = np.linspace(0,len(self.data['H_fp'].T)/self.cfg['fr'],len(self.data['H_fp'].T))
-			t2 = np.linspace(0,len(self.data['H_fp'].T)/self.cfg['fr'],ns)
-			H = np.zeros((len(t2),))
-			nchan = len(self.data['H_fp'])
+			freqs=[C0*2**(i/12) for i in range(128)]
+			true_fr=(self.cfg['fr']*self.cfg['speed'])/100
+			ns=int(fs*len(self.data['H_fp'].T)/true_fr)
+			t1=np.linspace(0,len(self.data['H_fp'].T)/self.cfg['fr'],len(self.data['H_fp'].T))
+			t2=np.linspace(0,len(self.data['H_fp'].T)/self.cfg['fr'],ns)
+			H=np.zeros((len(t2),))
+			nchan=len(self.data['H_fp'])
 			for n in range(nchan):
-				Htmp = self.data['H_fp'][n,:]
-				Htmp[Htmp<0] = 0
-				Htmp = interp1d(t1,Htmp)(t2)
+				Htmp=self.data['H_fp'][n,:]
+				Htmp[Htmp<0]=0
+				Htmp=interp1d(t1,Htmp)(t2)
 				H += np.sin(2*np.pi*freqs[self.keys[n]]*t2)*Htmp
-				Hstr = 'H_fp'
+				Hstr='H_fp'
 				if self.display:
-					self.status['text'] = f'Status: Writing audio: {n+1} out of {nchan} channels...'
+					self.status['text']=f'Status: Writing audio: {n+1} out of {nchan} channels...'
 					self.update()
-			wav = np.hstack((H[:,None],H[:,None]))
-			wav = np.int16(wav/np.max(np.abs(wav)) * 32767)
+			wav=np.hstack((H[:,None],H[:,None]))
+			wav=np.int16(wav/np.max(np.abs(wav)) * 32767)
 			wavwrite(os.path.join(self.cfg['save_path'],self.cfg['file_out'])+'.wav',fs,wav)
 		self.message(f'Audio file written to {self.cfg["save_path"]}')
 
@@ -489,9 +489,9 @@ class GUI(Tk):
 		if not self.check_data():
 			return
 		self.process_H_W()
-		fn_vid = os.path.join(self.cfg['save_path'],self.cfg['file_out'])+'.mp4'
-		v_shape = self.data['W_shape'][::-1][1:] # Reverse because ffmpeg does hxw
-		command = [ 'ffmpeg',
+		fn_vid=os.path.join(self.cfg['save_path'],self.cfg['file_out'])+'.mp4'
+		v_shape=self.data['W_shape'][::-1][1:] # Reverse because ffmpeg does hxw
+		command=[ 'ffmpeg',
 			'-loglevel', 'warning', # Prevents excessive messages
 			'-hide_banner',
 			'-y', # Auto overwrite
@@ -504,14 +504,14 @@ class GUI(Tk):
 			'-q:v','2', # Quality
 			'-vcodec', 'mpeg4',
 			fn_vid]
-		pipe = sp.Popen(command, stdin=sp.PIPE)
-		nframes = len(self.data['H_pp'].T)
+		pipe=sp.Popen(command, stdin=sp.PIPE)
+		nframes=len(self.data['H_pp'].T)
 		for i in range(nframes):
-			frame = (self.data['W_pp']@np.diag(self.data['H_pp'][:,i])@self.cmap[:,:-1]*(255/self.cfg['brightness'])).reshape(self.data['W_shape'][0],self.data['W_shape'][1],3).clip(min=0,max=255).astype('uint8')
-			im = Image.fromarray(frame)
+			frame=(self.data['W_pp']@np.diag(self.data['H_pp'][:,i])@self.cmap[:,:-1]*(255/self.cfg['brightness'])).reshape(self.data['W_shape'][0],self.data['W_shape'][1],3).clip(min=0,max=255).astype('uint8')
+			im=Image.fromarray(frame)
 			im.save(pipe.stdin, 'PNG')
 			if self.display and i%10==0:
-				self.status['text'] = f'Writing video file, {i} out of {nframes} frames written'
+				self.status['text']=f'Writing video file, {i} out of {nframes} frames written'
 				self.update()
 		pipe.stdin.close()
 		pipe.wait()
@@ -523,8 +523,8 @@ class GUI(Tk):
 		Merges video and audio with ffmpeg
 		'''
 		if self.check_data():
-			fn = os.path.join(self.cfg['save_path'],self.cfg['file_out'])
-			cmd = 'ffmpeg -hide_banner -loglevel warning -y -i {} -i {} -c:v copy -c:a aac {}'.format(fn+'.mp4',fn+'.wav',fn+'_AV.mp4')
+			fn=os.path.join(self.cfg['save_path'],self.cfg['file_out'])
+			cmd='ffmpeg -hide_banner -loglevel warning -y -i {} -i {} -c:v copy -c:a aac {}'.format(fn+'.mp4',fn+'.wav',fn+'_AV.mp4')
 			os.system(cmd)
 			self.message(f'A/V file written to {self.cfg["save_path"]}')
 			return self
@@ -544,7 +544,7 @@ class GUI(Tk):
 		'''
 		Tries to remove any files that are video or audio only.	
 		'''
-		fn = os.path.join(self.cfg['save_path'],self.cfg['file_out'])
+		fn=os.path.join(self.cfg['save_path'],self.cfg['file_out'])
 		try: 
 			os.remove(fn+'.mp4')
 		except OSError: 
@@ -565,7 +565,7 @@ class GUI(Tk):
 
 	def initGUI(self):
 		'''
-		
+		Initialize GUI fields, labels, dropdowns, etc.
 		'''
 		self.winfo_toplevel().title('pyanthem v{}'.format(pkg_resources.require("pyanthem")[0].version))
 		self.protocol("WM_DELETE_WINDOW", self.quit)
@@ -609,7 +609,7 @@ class GUI(Tk):
 		Label(text='Audio format').grid(row=6, column=5, sticky='E')
 
 		# Messages
-		self.status = Message(text='> Welcome to pyanthem v{}'.format(pkg_resources.require("pyanthem")[0].version),bg='white',fg='black',width=450)
+		self.status=Message(text='> Welcome to pyanthem v{}'.format(pkg_resources.require("pyanthem")[0].version),bg='white',fg='black',width=450)
 		self.status.grid(row=9, column=2, columnspan=5, sticky='NESW')
 		self.status['anchor']='nw'
 
@@ -632,14 +632,14 @@ class GUI(Tk):
 		self.update_button.grid(row=9, column=1,columnspan=1)
 
 		# Option/combobox values
-		audio_format_opts = ['Analog']
-		sf_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),'anthem_soundfonts')
+		audio_format_opts=['Analog']
+		sf_path=os.path.join(os.path.dirname(os.path.abspath(__file__)),'anthem_soundfonts')
 		if os.path.isdir(sf_path):
-			fonts_avail = text_files = [f for f in os.listdir(sf_path) if f.endswith('.sf2')]
+			fonts_avail=text_files=[f for f in os.listdir(sf_path) if f.endswith('.sf2')]
 			audio_format_opts.extend(fonts_avail)
 		
 		# Option Menus
-		self.octave_add_menu = OptionMenu(self,self.octave_add,*octave_add_opts.keys())
+		self.octave_add_menu=OptionMenu(self,self.octave_add,*octave_add_opts.keys())
 		self.octave_add_menu.config(width=7)
 		self.octave_add_menu.grid(row=3, column=6, sticky='W')
 		self.scale_type_menu=OptionMenu(self,self.scale_type,*scale_keys.keys())
@@ -653,12 +653,12 @@ class GUI(Tk):
 		self.audio_format_menu.grid(row=6, column=6, sticky='W')
 		
 		# Combo box
-		self.cmapchooser = Combobox(self,textvariable=self.cmapchoice,width=5)
-		self.cmapchooser['values'] = cmaps_opts
-		self.cmapchooser['state'] = 'readonly'
+		self.cmapchooser=Combobox(self,textvariable=self.cmapchoice,width=5)
+		self.cmapchooser['values']=cmaps_opts
+		self.cmapchooser['state']='readonly'
 		self.cmapchooser.grid(row=7, column=4, sticky='W')
 		self.cmapchooser.current()
-		self.cmap = []
+		self.cmap=[]
 
 		# Menu bar
 		menubar=Menu(self)
@@ -718,17 +718,17 @@ class GUI(Tk):
 
 	def init_plots(self):
 		'''
-		
+		Initializes the plot areas. Is called every time update_GUI() is called.
 		'''
 		# H
-		self.figH = plt.Figure(figsize=(6,6), dpi=100, tight_layout=True)
-		self.Hax1 = self.figH.add_subplot(211)
-		self.Hax2 = self.figH.add_subplot(212)
+		self.figH=plt.Figure(figsize=(6,6), dpi=100, tight_layout=True)
+		self.Hax1=self.figH.add_subplot(211)
+		self.Hax2=self.figH.add_subplot(212)
 		self.Hax1.set_title('Temporal Data (H)')
 		self.Hax2.set_title('Audio Preview (H\')')
-		self.canvas_H = FigureCanvasTkAgg(self.figH, master=self)
+		self.canvas_H=FigureCanvasTkAgg(self.figH, master=self)
 		self.canvas_H.get_tk_widget().grid(row=1,column=7,rowspan=29,columnspan=10)
-		bg = self.status.winfo_rgb(self['bg'])
+		bg=self.status.winfo_rgb(self['bg'])
 		self.figH.set_facecolor([(x>>8)/255 for x in bg])
 		#self.canvas_H.draw()
 
@@ -736,14 +736,14 @@ class GUI(Tk):
 		Checkbutton(self, text="Offset H",command=self.refresh_GUI,variable=self.offsetH).grid(row=1,rowspan=1,column=16)
 
 		# W
-		self.figW = plt.Figure(figsize=(6,3), dpi=100, constrained_layout=True)
-		self.Wax1 = self.figW.add_subplot(121)
-		self.Wax2 = self.figW.add_subplot(122)
+		self.figW=plt.Figure(figsize=(6,3), dpi=100, constrained_layout=True)
+		self.Wax1=self.figW.add_subplot(121)
+		self.Wax2=self.figW.add_subplot(122)
 		self.Wax1.set_title('Video Preview')
 		self.Wax2.set_title('Spatial Data (W)')
 		self.Wax1.axis('off')
 		self.Wax2.axis('off')
-		self.canvas_W = FigureCanvasTkAgg(self.figW, master=self)
+		self.canvas_W=FigureCanvasTkAgg(self.figW, master=self)
 		self.canvas_W.get_tk_widget().grid(row=11,column=1,rowspan=19,columnspan=6)
 		self.figW.set_facecolor([(x>>8)/255 for x in bg])
 		#self.canvas_W.draw()
@@ -769,84 +769,84 @@ class GUI(Tk):
 			filein=uiopen(title='Select .mat file for import',filetypes=[('.mat files','*.mat')])
 		if filein == '.':
 			return
-		dh, var = loadmat(file_in),whosmat(file_in)
-		data = dh[var[0][0]]
-		sh = data.shape
+		dh, var=loadmat(file_in),whosmat(file_in)
+		data=dh[var[0][0]]
+		sh=data.shape
 		if len(sh) != 3:
 			self.message('ERROR: input dataset is not 3D.')
 			return
-		data = data.reshape(sh[0]*sh[1],sh[2])
+		data=data.reshape(sh[0]*sh[1],sh[2])
 		# Ignore rows with any nans
-		nanidx = np.any(np.isnan(data), axis=1)
-		data_nn = data[~nanidx] # nn=non-nan
+		nanidx=np.any(np.isnan(data), axis=1)
+		data_nn=data[~nanidx] # nn=non-nan
 		# k-means
 		print('Performing k-means...',end='')
 		if n_clusters is None:
-			n_clusters = int(len(data)**.25) # Default k is the 4th root of the number of samples per frame (for 256x256, this would be 16)
+			n_clusters=int(len(data)**.25) # Default k is the 4th root of the number of samples per frame (for 256x256, this would be 16)
 			print(f'No num_clusters given. Defaulting to {n_clusters}...',end='')
-		idx_nn = KMeans(n_clusters=n_clusters, random_state=0).fit(data_nn).labels_
-		idx = np.zeros((len(data),))
-		idx[nanidx==False] = idx_nn
+		idx_nn=KMeans(n_clusters=n_clusters, random_state=0).fit(data_nn).labels_
+		idx=np.zeros((len(data),))
+		idx[nanidx==False]=idx_nn
 		# TCs
-		H = np.zeros((n_clusters,len(data.T)))
+		H=np.zeros((n_clusters,len(data.T)))
 		for i in range(n_clusters):
-			H[i,:] = np.nanmean(data[idx==i,:],axis=0)
+			H[i,:]=np.nanmean(data[idx==i,:],axis=0)
 		print('done.')
 		# NNLS
 		nnidx=np.where(~nanidx)[0]
-		W = np.zeros((len(data),n_clusters))
+		W=np.zeros((len(data),n_clusters))
 		print('Performing NNLS...',end='')
 		for i in range(len(nnidx)):
 			W[nnidx[i],:]=nnls(H.T,data_nn[i,:])[0]
 		# Sort bottom to top
-		xc,yc = [], []
-		(X,Y) = np.meshgrid(range(sh[0]),range(sh[1]))
+		xc,yc=[], []
+		(X,Y)=np.meshgrid(range(sh[0]),range(sh[1]))
 		for i in range(len(W.T)):
-			Wtmp = W[:,i].reshape(sh[0],sh[1])
+			Wtmp=W[:,i].reshape(sh[0],sh[1])
 			xc.append((X*Wtmp).sum() / Wtmp.sum().astype("float"))
 			yc.append((Y*Wtmp).sum() / Wtmp.sum().astype("float"))
-		I = np.argsort(yc).reverse() # Reverse orders from bottom to top
-		W, H = W[:,I],H[I,:]
+		I=np.argsort(yc).reverse() # Reverse orders from bottom to top
+		W, H=W[:,I],H[I,:]
 		print('done.')
 		
 		# Assign variables and save
-		self.data = {}
-		self.data['H'] = H
-		self.data['W'] = W.reshape(sh[0],sh[1],n_clusters)
-		self.data['W_shape'] = self.data['W'].shape
+		self.data={}
+		self.data['H']=H
+		self.data['W']=W.reshape(sh[0],sh[1],n_clusters)
+		self.data['W_shape']=self.data['W'].shape
 		if frame_rate == []:
-			self.data['fr'] = 10
+			self.data['fr']=10
 			print('No fr given. Defaulting to 10')
 		else:
-			self.data['fr'] = frame_rate
+			self.data['fr']=frame_rate
 		if save:
-			fn = file_in.replace('.mat','_decomp.mat')
+			fn=file_in.replace('.mat','_decomp.mat')
 			savemat(fn,self.data)
 			self.message(f'Decomposed data file saved to {fn}')
 		
 		# Reshape W here, since any use of self from here would require a flattened W
-		self.data['W'] = self.data['W'].reshape(self.data['W'].shape[0]*self.data['W'].shape[1],self.data['W'].shape[2])
+		self.data['W']=self.data['W'].reshape(self.data['W'].shape[0]*self.data['W'].shape[1],self.data['W'].shape[2])
 		return self
 
 	def query(self):
-		field = simpledialog.askstring("Input", "Query a root property",parent=self)
+		field=simpledialog.askstring("Input", "Query a root property",parent=self)
 		try:
-			self.status['text'] = str(getattr(self,field))
+			self.status['text']=str(getattr(self,field))
 		except:
-			self.status['text'] = 'Bad query.'
+			self.status['text']='Bad query.'
 
 	def view_cfg(self):
 		'''
 		Only works once!
 		'''
-		self.cfginfo = Toplevel()
-		text = ''
+		self.cfginfo=Toplevel()
+		text=''
 		try:
 			for key in self.cfg:
 				text+=str(key)+': '+str(self.cfg[key])+'\n'
 		except:
 			pass
-		self.cfginfotext = Message(self.cfginfo,text=text)
+		self.cfginfotext=Message(self.cfginfo,text=text)
 		self.cfginfotext.pack()
 
 	def help(self):
