@@ -15,10 +15,6 @@ Python 3:
    Currently, pyanthem is tested to work on `Python 3.7`_. This will be 
    updated as more versions are tested.
 
-pip:
-   pip is needed for the installation of the pyanthem module and its
-   dependencies.
-
 ffmpeg:
    ffmpeg_ enables video creation and merging.
 
