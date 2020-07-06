@@ -26,7 +26,7 @@ fluidsynth (optional, but **highly recommended**)
    fluidsynth_ is a powerful software synthesizer, which enables 
    conversion of data to crisp, high quality sound files.
   
-.. _`Python 3.7`: https://www.python.org/
+.. _`Python 3.7`: https://www.python.org/downloads/release/python-378/
 .. _ffmpeg: https://ffmpeg.org/
 .. _fluidsynth: http://www.fluidsynth.org/
 
