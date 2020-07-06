@@ -5,10 +5,10 @@ with open('README.rst', 'r') as fh:
 
 setuptools.setup(
 	name='pyanthem',
-	version='0.68',
+	version='0.72',
 	author='Nic Thibodeaux',
 	author_email='dnt2111@columbia.edu',
-	description='pyanthem - a neuroimaging audiovisualiation tool.',
+	description='pyanthem - an audiovisualization tool to make your data more interesting',
 	long_description=long_description,
 	long_description_content_type='text/markdown',
 	url='https://github.com/nicthib/pyanthem',
