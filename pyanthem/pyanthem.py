@@ -73,10 +73,11 @@ def run(display=True):
 	Main command to run GUI or CLI
 	'''
 	root=GUI(display=display)
+	sys.ps1 = '♫ '
 	if display:
 		root.mainloop()
 	else:
-		print('pyanthem v{}'.format(pkg_resources.require("pyanthem")[0].version))
+		print('Welcome to pyanthem v{}!'.format(pkg_resources.require("pyanthem")[0].version))
 		return root
 
 class GUI(Tk):
@@ -92,8 +93,8 @@ class GUI(Tk):
 		if not os.path.isdir(self.sf_path):
 			print('Initializing soundfont library...')
 			os.mkdir(self.sf_path)
-		for f in sound_fonts.keys():
-			download_soundfont(f)
+			for f in sound_fonts.keys():
+				download_soundfont(f)
 		if self.display:
 			Tk.__init__(self)
 			self.default_font=font.nametofont("TkDefaultFont")
@@ -147,15 +148,7 @@ class GUI(Tk):
 		oustide the GUI and dumped to a pickle file, which essentially "freezes" the GUI.
 		'''
 		self.cfg={k: getattr(self,k).get() if self_fns[k] is 'entry' else getattr(self,k) for k in self_fns}
-		if hasattr(self,'cfginfo'):
-			text=''
-			for key in self.cfg:
-				text+=str(key)+': '+str(self.cfg[key])+'\n'
-			self.cfginfotext['text']=text
-			self.cfginfo.update()
 
-
-	
 	def load_data(self,filein=None):
 		'''
 		loads dataset from filein. At the time, only supports .mat files.
@@ -305,7 +298,7 @@ class GUI(Tk):
 		self.canvas_H.draw()
 		self.canvas_W.draw()
 		self.refresh_slider([])
-		self.status['text']='♫ ♪ ♫ ♪ ♫'
+		self.message('')
 
 	def process_H_W(self):
 		'''
@@ -384,7 +377,7 @@ class GUI(Tk):
 		self.cmap=cmap(np.linspace(0,1,len(self.data['H_pp'])))
 		if self.display:
 			self.refresh_GUI()
-		self.status['text']='♫ ♪ ♫ ♪ ♫'
+		self.message('')
 
 	def refresh_slider(self,event):
 		'''
@@ -609,7 +602,7 @@ class GUI(Tk):
 		Label(text='Audio format').grid(row=6, column=5, sticky='E')
 
 		# Messages
-		self.status=Message(text='> Welcome to pyanthem v{}'.format(pkg_resources.require("pyanthem")[0].version),bg='white',fg='black',width=450)
+		self.status=Message(text='Welcome to pyanthem v{}!'.format(pkg_resources.require("pyanthem")[0].version),bg='white',fg='black',width=450)
 		self.status.grid(row=9, column=2, columnspan=5, sticky='NESW')
 		self.status['anchor']='nw'
 
@@ -837,17 +830,14 @@ class GUI(Tk):
 
 	def view_cfg(self):
 		'''
-		Only works once!
+		Prints cfg info to command line
 		'''
-		self.cfginfo=Toplevel()
-		text=''
 		try:
 			for key in self.cfg:
-				text+=str(key)+': '+str(self.cfg[key])+'\n'
+				print(str(key)+': '+str(self.cfg[key]))
 		except:
 			pass
-		self.cfginfotext=Message(self.cfginfo,text=text)
-		self.cfginfotext.pack()
+		
 
 	def help(self):
 		print('To load a dataset:\npyanthem.load_data()\n\nTo load a cfg file:\npyanthem.load_config()\n\nTo write video:\npyanthem.write_video()\n\nTo write audio:\npyanthem.write_audio()')
