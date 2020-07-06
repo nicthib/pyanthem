@@ -69,6 +69,13 @@ If you already have the requirements installed, install pyanthem using pip::
 .. _`pyanthem.yaml`: https://drive.google.com/file/d/1N7TB3Fypdwr8Aw1dQDSjyxit5Y-0mLZs
 .. _here: https://github.com/nicthib/FluidSynth-Windows-Builds/archive/v1.zip
 
+Downloading Example datasets
+----------------------------
+
+If you want to get familiar with the datasets that pyanthem uses, download this small collection of `datasets/config files`_
+
+.. _`datasets/config files`: https://github.com/nicthib/anthem_datasets/archive/master.zip
+
 Usage
 =====
 
