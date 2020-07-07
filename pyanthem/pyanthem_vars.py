@@ -10,14 +10,14 @@ self_fns={
 'scale_type':'entry',
 'key':'entry',
 'sound_preset':'entry',
-'Wshow':'entry',
+'comps_to_show':'entry',
 'cmapchoice':'entry', 
 'speed':'entry',
 'file_in':'entry',
 'file_out':'entry',
 'save_path':'entry',
 'audio_analog':'entry',
-'Wshow_arr':'value'
+'comps_to_show_arr':'value'
 }
 
 octave_add_opts={

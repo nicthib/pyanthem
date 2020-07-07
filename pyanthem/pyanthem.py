@@ -95,7 +95,8 @@ class GUI(Tk):
 		Quits the GUI instance. Currently, jupyter instances are kinda buggy
 		'''
 		try:
-			# This raises a NameError exception in a notebook env, since sys.exit() is not an appropriate method
+			# This raises a NameError exception in a notebook env, since 
+			# sys.exit() is not an appropriate method
 			get_ipython().__class__.__name__ 
 			self.destroy()
 		except NameError:
@@ -134,10 +135,9 @@ class GUI(Tk):
 		'''
 		Saves config file.
 		'''
-		if self.check_data():
-			file_out=os.path.join(self.cfg['save_path'],self.cfg['file_out'])+'_cfg.p'
-			pickle.dump(self.cfg,open(file_out, "wb"))
-			self.message(f'cfg file saved to {file_out}')
+		file_out=os.path.join(self.cfg['save_path'],self.cfg['file_out'])+'_cfg.p'
+		pickle.dump(self.cfg,open(file_out, "wb"))
+		self.message(f'cfg file saved to {file_out}')
 	
 	def load_data(self,filein=None):
 		'''
@@ -145,16 +145,32 @@ class GUI(Tk):
 		'''
 		if filein is None:
 			filein=uiopen(title='Select .mat file for import',filetypes=[('.mat files','*.mat')])
-		if filein == '.':
+		if filein=='.':
 			return
-		self.data=loadmat(filein)
-		try:
-			self.data['W_shape']=self.data['W'].shape
-			self.data['W']=self.data['W'].reshape(self.data['W'].shape[0]*self.data['W'].shape[1],self.data['W'].shape[2])
-			self.data['fr']=float(self.data['fr'])
+		data={}
+		data_unk=loadmat(filein)
+		for k in data_unk.keys():
+			if k in ('__header__', '__version__', '__globals__'):
+				continue
+			elif len(data_unk[k])==1:
+				data['fr']=float(data_unk[k])
+			elif data_unk[k].ndim==2:
+				data['H']=data_unk[k]
+			elif data_unk[k].ndim==3:
+				data['W']=data_unk[k]
+		if ('H' in data and 'W' in data) and data['H'].shape[0] != data['W'].shape[-1] :
+			self.message('Error: Inner dimensions of {} x {} do not match!')
+			return
+		if 'H' in data:
+			if 'W' in data:
+				data['W_shape']=data['W'].shape
+				data['W']=data['W'].reshape(data['W'].shape[0]*data['W'].shape[1],data['W'].shape[2])
+			if 'fr' not in data:
+				data['fr']=data['H'].shape[1]/60 # Forces length to be 1 minute!
+			self.data=data
 			if not self.display:
 				return self
-		except:
+		else:
 			self.message('Error: .mat file incompatible. Please select a .mat file with three variables: W (3D), H (2D), and fr (1-element float)')
 
 	def load_GUI(self):
@@ -162,25 +178,27 @@ class GUI(Tk):
 		GUI-addons for load_data. Prompts user with filedialog, assigns defaults and sets GUI fields. 
 		'''
 		filein=uiopen(title='Select .mat file for import',filetypes=[('.mat files','*.mat')])
-		if filein == '.':
+		if filein=='.':
 			return
 		self.load_data(filein)
+		if not hasattr(self,'data'):
+			return
 		self.data['H_pp']=self.data['H']
 		self.data['H_fp']=self.data['H']
-		self.data['W_pp']=self.data['W']
 		self.fr.set(self.data['fr'])
+		if 'W' in self.data:
+			self.data['W_pp']=self.data['W']
 		self.file_in.set(os.path.splitext(os.path.split(filein)[1])[0])
 
 		# Set some defaults
 		self.file_out.set(self.file_in.get())
 		self.save_path.set(os.path.split(filein)[0])
-		Hstr='H' # for whatever reason, can't double nest quotations in an f-string
+		Hstr='H' # for whatever reason, can't double nest quotations in an f-string :/
 		self.brightness.set(f'{float(f"{np.mean(self.data[Hstr])+np.std(self.data[Hstr]):.3g}"):g}')
 		self.threshold.set(f'{float(f"{np.mean(self.data[Hstr])+np.std(self.data[Hstr]):.3g}"):g}')
-		self.Wshow_arr=list(range(len(self.data['H'])))
-		self.process_H_W()
+		self.comps_to_show_arr=list(range(len(self.data['H'])))
 		self.init_plots()
-		self.refresh_GUI()
+		self.process_H_W()
 	
 	def load_config(self,filein=None):
 		'''
@@ -188,7 +206,7 @@ class GUI(Tk):
 		'''
 		if filein is None:
 			filein=uiopen(title='Select pickle file for import',filetypes=[('pickle file','*.p'),('pickle file','*.pkl'),('pickle file','*.pickle')])
-		if filein == '.':
+		if filein=='.':
 			return
 		with open(filein, "rb") as f:
 			self.cfg=pickle.load(f)
@@ -203,83 +221,69 @@ class GUI(Tk):
 				return self
 
 	def refresh_GUI(self,event=None):
-		if not self.check_data():
-			return
-		self.init_plots()
+		#self.init_plots()
+		if 'W_pp' in self.data:
+			if self.frameslider.get() > len(self.data['H_pp'].T): # This (usually) occurs when the user crops the dataset
+				self.frameslider.set(1)
+			self.frameslider['to']=int(len(self.data['H_pp'].T)-1)
+			self.imWH=self.Wax1.imshow((self.data['W_pp']@np.diag(self.data['H_pp'][:,self.frameslider.get()])@\
+				self.cmap[:,:-1]*(255/self.cfg['brightness'])).reshape(self.data['W_shape'][0],self.data['W_shape'][1],3)\
+				.clip(min=0,max=255).astype('uint8'))
+			self.imW=self.Wax2.imshow((self.data['W_pp']@self.cmap[:,:-1]*255/np.max(self.data['W_pp'])).\
+				reshape(self.data['W_shape'][0],self.data['W_shape'][1],3).clip(min=0,max=255).astype('uint8'))
+			self.imW.axes.set_aspect('equal')
+			self.imWH.axes.set_aspect('equal')
+			self.canvas_W.draw()
+			self.refresh_slider([])
 
-		# Update slider (Need to move the command)
-		if self.frameslider.get() > len(self.data['H_pp'].T): # This (usually) occurs when the user crops the dataset
-			self.frameslider.set(1)
-		self.frameslider['to']=int(len(self.data['H_pp'].T)-1)
+		if 'H_pp' in self.data:
+			Hstd=self.data['H_pp'].std()*3
+			if self.offsetH.get():
+				tmpH=self.data['H_pp'].T - repmat([w*Hstd for w in list(range(len(self.comps_to_show_arr)))],len(self.data['H_pp'].T),1)
+			else:
+				tmpH=self.data['H_pp'].T
 
-		Hstd=self.data['H_pp'].std()*3
-		if self.offsetH.get():
-			tmpH=self.data['H_pp'].T - repmat([w*Hstd for w in list(range(len(self.Wshow_arr)))],len(self.data['H_pp'].T),1)
-		else:
-			tmpH=self.data['H_pp'].T
+			self.Hax1.cla()
+			self.Hax1.plot(tmpH,linewidth=.5)
+			for i,j in enumerate(self.Hax1.lines):
+				j.set_color(self.cmap[i])
+			if not self.offsetH.get():
+				thresh_line=self.Hax1.plot(np.ones((len(self.data['H_pp'].T,)))*self.cfg['threshold'],linestyle='dashed',color='0',linewidth=1)
+				zero_line=self.Hax1.plot(np.zeros((len(self.data['H_pp'].T,))),linestyle='dashed',color='.5',linewidth=1)
+				self.legend=self.Hax1.legend((thresh_line[0],), ('Threshold',))
+			self.Hax1.set_xlim(0, len(self.data['H_pp'].T))
+			self.Hax1.set_ylim(np.min(tmpH), np.max(tmpH))
+			if self.offsetH.get():
+				self.Hax1.set(ylabel='Component #')
+			else:
+				self.Hax1.set(ylabel='Magnitude')
 
-		self.H_plot=self.Hax1.plot(tmpH,linewidth=.5)
-		for i,j in enumerate(self.Hax1.lines):
-			j.set_color(self.cmap[i])
-		if not self.offsetH.get():
-			thresh_line=self.Hax1.plot(np.ones((len(self.data['H_pp'].T,)))*self.cfg['threshold'],linestyle='dashed',color='0',linewidth=1)
-			zero_line=self.Hax1.plot(np.zeros((len(self.data['H_pp'].T,))),linestyle='dashed',color='.5',linewidth=1)
-			self.legend=self.Hax1.legend((thresh_line[0],), ('Threshold',))
-			#self.legend=self.Hax1.legend((thresh_line[0],zero_line[0]), ('Threshold','Baseline'))
+			if self.audio_analog.get():
+				if len(self.data['H_pp'])>16:
+					self.audio_analog.set(0)
+					self.Hax2.imshow(self.data['H_fp'],interpolation='none',cmap=plt.get_cmap('gray'))
+					self.message('Error: Analog audio is currently limited to 16 components.')
+				else:
+					# I do not understand why I have to do it this way
+					tmp=self.Hax2.imshow(self.data['H_pp'],interpolation='none',cmap=plt.get_cmap('gray'))
+					tmp.set_clim(0, np.max(self.data['H_pp']))
+			else:
+				self.Hax2.imshow(self.data['H_fp'],interpolation='none',cmap=plt.get_cmap('gray'))
 
-		if self.cfg['audio_analog']:
-			self.H_p_plot=self.Hax2.imshow(self.data['H_pp'],interpolation='none',cmap=plt.get_cmap('gray'))
-			self.H_p_plot.set_clim(0, np.max(self.data['H_pp']))
-		else:
-			self.H_p_plot=self.Hax2.imshow(self.data['H_fp'],interpolation='none',cmap=plt.get_cmap('gray'))
+			self.Hax2.xaxis.set_major_formatter(tkr.FuncFormatter(lambda x, pos: '{:.2g}'.format(x/self.cfg['fr'])))
 
-		self.Hax2.xaxis.set_major_formatter(tkr.FuncFormatter(lambda x, pos: '{:.2g}'.format(x/self.cfg['fr'])))
-		self.Hax2.set(xlabel='time (sec)',ylabel='Component #')
+			if len(self.comps_to_show_arr) > 12:
+				yticks=np.arange(4,len(self.data['H_pp']),5)
+				yticklabels=np.arange(4,len(self.data['H_pp']),5)
+			else:
+				yticks=np.arange(0,len(self.data['H_pp']),1)
+				yticklabels=np.arange(0,len(self.data['H_pp']),1)
 
-		self.Hax1.set_xlim(0, len(self.data['H_pp'].T))
-		self.Hax1.set_ylim(np.min(tmpH), np.max(tmpH))
-		if self.offsetH.get():
-			self.Hax1.set(ylabel='Component #')
-		else:
-			self.Hax1.set(ylabel='Magnitude')
-
-		self.Hax1.spines['left'].set_visible(False)
-		self.Hax1.spines['top'].set_visible(False)
-		self.Hax1.spines['bottom'].set_visible(False)
-		self.Hax1.spines['right'].set_visible(False)
-		self.Hax1.yaxis.tick_right()
-		self.Hax1.yaxis.set_label_position("right")
-		self.Hax1.tick_params(axis='x',which='both',bottom=False, top=False, labelbottom=False, right=False)
-
-		if len(self.Wshow_arr) > 12:
-			yticks=np.arange(4,len(self.data['H_pp']),5)
-			yticklabels=np.arange(4,len(self.data['H_pp']),5)
-		else:
-			yticks=np.arange(0,len(self.data['H_pp']),1)
-			yticklabels=np.arange(0,len(self.data['H_pp']),1)
-
-		if self.offsetH.get():
-			self.Hax1.set(yticks=-yticks*Hstd,yticklabels=yticklabels)
-		self.Hax2.set(yticks=yticks,yticklabels=yticklabels)
-		self.Hax2.spines['left'].set_visible(False)
-		self.Hax2.spines['top'].set_visible(False)
-		self.Hax2.spines['bottom'].set_visible(False)
-		self.Hax2.spines['right'].set_visible(False)
-		self.Hax2.yaxis.tick_right()
-		self.Hax2.yaxis.set_label_position("right")
-		self.imWH=self.Wax1.imshow((self.data['W_pp']@np.diag(self.data['H_pp'][:,self.frameslider.get()])\
-			@self.cmap[:,:-1]*(255/self.cfg['brightness'])).reshape(self.data['W_shape'][0],self.data['W_shape'][1],3)\
-			.clip(min=0,max=255).astype('uint8'))
-		self.imW=self.Wax2.imshow((self.data['W_pp']@self.cmap[:,:-1]*255/np.max(self.data['W_pp'])).\
-			reshape(self.data['W_shape'][0],self.data['W_shape'][1],3).clip(min=0,max=255).astype('uint8'))
-		
-		self.H_p_plot.axes.set_aspect('auto')
-		self.imW.axes.set_aspect('equal')
-		self.imWH.axes.set_aspect('equal')
-		self.canvas_H.draw()
-		self.canvas_W.draw()
-		self.refresh_slider([])
-		self.message('')
+			if self.offsetH.get():
+				self.Hax1.set(yticks=-yticks*Hstd,yticklabels=yticklabels)
+			self.Hax2.set(yticks=yticks,yticklabels=yticklabels)
+			self.Hax2.axes.set_aspect('auto')
+			self.canvas_H.draw()
 
 	def process_H_W(self):
 		'''
@@ -291,20 +295,21 @@ class GUI(Tk):
 			self.self_to_cfg()
 			self.message('Updating...')
 			self.update()
-		if self.cfg['Wshow'] == 'all':
-			self.Wshow_arr=list(range(len(self.data['H'])))
+		if self.cfg['comps_to_show']=='all':
+			self.comps_to_show_arr=list(range(len(self.data['H'])))
 		# regex expression which lazily checks for a bracketed expression containing numbers, colons and commas.
-		elif re.match('^\[[0-9,: ]*\]$',self.cfg['Wshow']) is not None:
+		elif re.match('^\[[0-9,: ]*\]$',self.cfg['comps_to_show']) is not None:
 			# This is a magic function which transforms bracketed string arrays to actual numpy arrays.
 			# Example: '[1,3,5:8]' --> array([1,3,5,6,7])
-			self.Wshow_arr=eval('np.r_'+self.cfg['Wshow']) 
+			self.comps_to_show_arr=eval('np.r_'+self.cfg['comps_to_show']) 
 		else:
 			self.message('For \'components to show\', please input indices with commas and colons enclosed by square brackets, or \'all\' for all components.')
 			return
 		
-		self.data['H_pp']=self.data['H'][self.Wshow_arr,int(len(self.data['H'].T)*self.cfg['start_percent']/100):int(len(self.data['H'].T)*self.cfg['end_percent']/100)]
+		self.data['H_pp']=self.data['H'][self.comps_to_show_arr,int(len(self.data['H'].T)*self.cfg['start_percent']/100):int(len(self.data['H'].T)*self.cfg['end_percent']/100)]
 		self.data['H_pp']=self.data['H_pp']+self.cfg['baseline']
-		self.data['W_pp']=self.data['W'][:,self.Wshow_arr]
+		if 'W' in self.data:
+			self.data['W_pp']=self.data['W'][:,self.comps_to_show_arr]
 		
 		# make_keys()
 		self.keys,i=[],0
@@ -333,8 +338,8 @@ class GUI(Tk):
 			H_b[H_b<self.cfg['threshold']]=0
 			H_b[H_b>=self.cfg['threshold']]=1
 			TC=np.diff(H_b)
-			st=np.argwhere(TC == 1)
-			en=np.argwhere(TC == -1)
+			st=np.argwhere(TC==1)
+			en=np.argwhere(TC==-1)
 			st=np.ndarray.flatten(st).tolist()
 			en=np.ndarray.flatten(en).tolist()
 			for j in range(len(st)):
@@ -349,20 +354,13 @@ class GUI(Tk):
 		self.cmap=cmap(np.linspace(0,1,len(self.data['H_pp'])))
 		if self.display:
 			self.refresh_GUI()
-		self.message('')
 
 	def refresh_slider(self,event):
 		'''
 		
 		'''
-		#try: # May want to use hasattr() here instead
-		self.imWH.set_data((self.data['W_pp']@np.diag(self.data['H_pp'][:,self.frameslider.get()])\
-			@self.cmap[:,:-1]*(255/self.cfg['brightness'])).reshape(self.data['W_shape'][0],\
-			self.data['W_shape'][1],3).clip(min=0,max=255).astype('uint8'))
+		self.imWH.set_data((self.data['W_pp']@np.diag(self.data['H_pp'][:,self.frameslider.get()])@self.cmap[:,:-1]*(255/self.cfg['brightness'])).reshape(self.data['W_shape'][0],self.data['W_shape'][1],3).clip(min=0,max=255).astype('uint8'))
 		self.canvas_W.draw()
-		#self.H_vline.set_xdata([self.frameslider.get(), self.frameslider.get()])
-		#self.H_vline.set_ydata(self.Hax1.get_ylim())
-		#self.canvas_H.draw()
 
 	def preview_notes(self):
 		'''
@@ -377,7 +375,6 @@ class GUI(Tk):
 			pre_init(fs, -16, 2, 1024)
 			init()
 			set_num_channels(128) # We will never need more than 128...
-		
 		mid=mido.MidiFile()
 		track=mido.MidiTrack()
 		mid.tracks.append(track)
@@ -398,20 +395,23 @@ class GUI(Tk):
 			self.imW.remove()
 			Wtmp=self.data['W_pp'][:,i]
 			cmaptmp=self.cmap[i,:-1]
-			self.imW=self.Wax2.imshow((Wtmp[:,None]@cmaptmp[None,:]*255/np.max(self.data['W_pp']))\
-				.reshape(self.data['W_shape'][0],self.data['W_shape'][1],3).clip(min=0,max=255).astype('uint8'))
+			self.imW=self.Wax2.imshow((Wtmp[:,None]@cmaptmp[None,:]*255/np.max(self.data['W_pp'])).reshape(self.data['W_shape'][0],self.data['W_shape'][1],3).clip(min=0,max=255).astype('uint8'))
 			self.canvas_W.draw()
 			self.update()
-			if i == 0:
+			if i==0:
 				music.play(0)
 			time.sleep(.5-np.min(((time.time()-t),.5)))
-		os.remove(fn_midi)
-		os.remove(fn_wav)
+		time.sleep(1)
+		try:
+			os.remove(fn_midi)
+			os.remove(fn_wav)
+		except:
+			pass
 		self.refresh_GUI()
 		
 	def write_audio(self):
 		'''
-		Writes audio from self.nd and font.sf2 using mido/fluidsynth
+		Writes audio either from .sf2 using fluidsynth or into raw file.
 		'''
 		if not self.check_data():
 			return
@@ -462,12 +462,13 @@ class GUI(Tk):
 
 	def write_video(self):
 		'''
-		Writes video file using self.data['H_pp'] using ffmpeg. 
-		We avoid using opencv because it is very slow in a conda environment.
+		Writes video file using self.data['H_pp'] and self.data['W_pp'] using ffmpeg. 
+		We avoid using opencv because it is very slow in a conda environment
 		http://zulko.github.io/blog/2013/09/27/read-and-write-video-frames-in-python-using-ffmpeg/
 		'''
 		if not self.check_data():
 			return
+
 		self.process_H_W()
 		fn_vid=os.path.join(self.cfg['save_path'],self.cfg['file_out'])+'.mp4'
 		v_shape=self.data['W_shape'][::-1][1:] # Reverse because ffmpeg does hxw
@@ -477,7 +478,7 @@ class GUI(Tk):
 			'-y', # Auto overwrite
 			'-f', 'image2pipe',
 			'-vcodec','png',
-			'-s', '{}x{}'.format(v_shape[0],v_shape[1]), # Video dims
+			'-s', '{}x{}'.format(v_shape[0],v_shape[1]),
 			'-r', str(self.cfg['fr']*self.cfg['speed']/100),
 			'-i', '-', # The input comes from a pipe
 			'-an', # Tells FFMPEG not to expect any audio
@@ -502,23 +503,21 @@ class GUI(Tk):
 		'''
 		Merges video and audio with ffmpeg
 		'''
-		if self.check_data():
-			fn=os.path.join(self.cfg['save_path'],self.cfg['file_out'])
-			cmd='ffmpeg -hide_banner -loglevel warning -y -i {} -i {} -c:v copy -c:a aac {}'.format(fn+'.mp4',fn+'.wav',fn+'_AV.mp4')
-			os.system(cmd)
-			self.message(f'A/V file written to {self.cfg["save_path"]}')
-			return self
+		fn=os.path.join(self.cfg['save_path'],self.cfg['file_out'])
+		cmd='ffmpeg -hide_banner -loglevel warning -y -i {} -i {} -c:v copy -c:a aac {}'.format(fn+'.mp4',fn+'.wav',fn+'_AV.mp4')
+		os.system(cmd)
+		self.message(f'A/V file written to {self.cfg["save_path"]}')
+		return self
 	
 	def write_AV(self):
 		'''
 		Runs full write and merge
 		'''
-		if self.check_data():
-			self.write_video()
-			self.write_audio()
-			self.merge()
-			if not self.display:
-				return self
+		self.write_video()
+		self.write_audio()
+		self.merge()
+		if not self.display:
+			return self
 
 	def cleanup(self):
 		'''
@@ -565,7 +564,7 @@ class GUI(Tk):
 		self.scale_type=init_entry('Maj. 7 (4/oct)')
 		self.key=init_entry('C')
 		self.sound_preset=init_entry('Piano')
-		self.Wshow=init_entry('all')
+		self.comps_to_show=init_entry('all')
 		self.cmapchoice=init_entry('jet')
 		
 		# Labels
@@ -636,7 +635,7 @@ class GUI(Tk):
 
 		# Checkbox
 		self.audio_analog=IntVar()
-		self.audio_analog.set(1)
+		self.audio_analog.set(0)
 		Checkbutton(self, text="Analog",command=self.process_H_W,variable=self.audio_analog).grid(row=7, column=6,columnspan=1)
 
 		# Menu bar
@@ -678,10 +677,6 @@ class GUI(Tk):
 		self.offsetH=IntVar()
 		self.offsetH.set(1)
 
-		# frameslider
-		self.frameslider=Scale(self, from_=0, to=1, orient=HORIZONTAL)
-		self.frameslider['command']=self.refresh_slider
-
 		# Bind shortcuts
 		self.bind_all("<Control-q>", self.quit)
 		self.bind_all("<Control-a>", lambda:[self.process_H_W(),self.refresh_GUI()])
@@ -700,40 +695,69 @@ class GUI(Tk):
 		Initializes the plot areas. Is called every time update_GUI() is called.
 		'''
 		# H
-		self.figH=plt.Figure(figsize=(6,6), dpi=100, tight_layout=True)
-		self.Hax1=self.figH.add_subplot(211)
-		self.Hax2=self.figH.add_subplot(212)
-		self.Hax1.set_title('Temporal Data (H)')
-		self.Hax2.set_title('Audio Preview (H\')')
-		self.canvas_H=FigureCanvasTkAgg(self.figH, master=self)
-		self.canvas_H.get_tk_widget().grid(row=1,column=7,rowspan=29,columnspan=10)
-		bg=self.status.winfo_rgb(self['bg'])
-		self.figH.set_facecolor([(x>>8)/255 for x in bg])
-		#self.canvas_H.draw()
-
-		# Checkbox
-		Checkbutton(self, text="Offset H",command=self.refresh_GUI,variable=self.offsetH).grid(row=1,rowspan=1,column=16)
-
-		# W
-		self.figW=plt.Figure(figsize=(6,3), dpi=100, constrained_layout=True)
-		self.Wax1=self.figW.add_subplot(121)
-		self.Wax2=self.figW.add_subplot(122)
-		self.Wax1.set_title('Video Preview')
-		self.Wax2.set_title('Spatial Data (W)')
-		self.Wax1.axis('off')
-		self.Wax2.axis('off')
-		self.canvas_W=FigureCanvasTkAgg(self.figW, master=self)
-		self.canvas_W.get_tk_widget().grid(row=11,column=1,rowspan=19,columnspan=6)
-		self.figW.set_facecolor([(x>>8)/255 for x in bg])
-		#self.canvas_W.draw()
+		if 'H_pp' in self.data:
+			self.figH=plt.Figure(figsize=(6,6), dpi=100, tight_layout=True)
+			self.Hax1=self.figH.add_subplot(211)
+			self.Hax2=self.figH.add_subplot(212)
+			self.Hax1.set_title('Temporal Data (H)')
+			self.Hax2.set_title('Audio Preview (H\')')
+			self.canvas_H=FigureCanvasTkAgg(self.figH, master=self)
+			self.canvas_H.get_tk_widget().grid(row=1,column=7,rowspan=30,columnspan=10)
+			bg=self.status.winfo_rgb(self['bg'])
+			self.figH.set_facecolor([(x>>8)/255 for x in bg])
+			self.Hax1.spines['left'].set_visible(False)
+			self.Hax1.spines['top'].set_visible(False)
+			self.Hax1.spines['bottom'].set_visible(False)
+			self.Hax1.spines['right'].set_visible(False)
+			self.Hax1.yaxis.tick_right()
+			self.Hax1.yaxis.set_label_position("right")
+			self.Hax1.tick_params(axis='x',which='both',bottom=False, top=False, labelbottom=False, right=False)
+			self.Hax2.set(xlabel='time (sec)',ylabel='Component #')
+			self.Hax2.spines['left'].set_visible(False)
+			self.Hax2.spines['top'].set_visible(False)
+			self.Hax2.spines['bottom'].set_visible(False)
+			self.Hax2.spines['right'].set_visible(False)
+			self.Hax2.yaxis.tick_right()
+			self.Hax2.yaxis.set_label_position("right")
+			# Checkbox
+			Checkbutton(self, text="Offset H",command=self.refresh_GUI,variable=self.offsetH).grid(row=1,rowspan=1,column=16)
 		
-		# Frameslider
-		self.frameslider.grid(row=30, column=1, columnspan=3,sticky='EW')
-		
-		# Wshow
-		Label(text='Components to show:').grid(row=30, column=3, columnspan=3, sticky='E')
-		Entry(textvariable=self.Wshow,width=15,justify='center').grid(row=30, column=5, columnspan=2,sticky='E')
+		try: 
+			# If user previously loaded dataset with W, clear those 
+			# plots and remove associated GUI elements.
+			self.figW.clear()
+			self.canvas_W.draw()
+			self.frameslider.grid_forget()
+			self.comps_to_show_label.grid_forget()
+			self.comps_to_show_entry.grid_forget()
+		except:
+			pass
 
+		if 'W_pp' in self.data:
+			self.figW=plt.Figure(figsize=(6,3), dpi=100, constrained_layout=True)
+			self.Wax1=self.figW.add_subplot(121)
+			self.Wax2=self.figW.add_subplot(122)
+			self.Wax1.set_title('Video Preview')
+			self.Wax2.set_title('Spatial Data (W)')
+			self.Wax1.axis('off')
+			self.Wax2.axis('off')
+			self.canvas_W=FigureCanvasTkAgg(self.figW, master=self)
+			self.canvas_W.get_tk_widget().grid(row=11,column=1,rowspan=19,columnspan=6)
+			self.figW.set_facecolor([(x>>8)/255 for x in bg])
+			
+			# Frameslider
+			# frameslider
+			self.frameslider=Scale(self, from_=1, to=2, orient=HORIZONTAL)
+			self.frameslider.set(1)
+			self.frameslider['command']=self.refresh_slider
+			self.frameslider.grid(row=30, column=1, columnspan=3,sticky='EW')
+			
+		# comps_to_show
+		self.comps_to_show_label=Label(text='Components:')
+		self.comps_to_show_label.grid(row=30, column=5, columnspan=1, sticky='E')
+		self.comps_to_show_entry=Entry(textvariable=self.comps_to_show,width=15,justify='center')
+		self.comps_to_show_entry.grid(row=30, column=6, columnspan=1,sticky='W')
+		
 		# tooltips
 		if self.tooltips_on:
 			self.balloon.bind(self.offsetH, '(Checked) Display lines one seperate y-axes\n(Unchecked) Display all lines with the same y-axis')
@@ -746,7 +770,7 @@ class GUI(Tk):
 		'''
 		if filein is None:
 			filein=uiopen(title='Select .mat file for import',filetypes=[('.mat files','*.mat')])
-		if filein == '.':
+		if filein=='.':
 			return
 		dh, var=loadmat(file_in),whosmat(file_in)
 		data=dh[var[0][0]]
@@ -793,7 +817,7 @@ class GUI(Tk):
 		self.data['H']=H
 		self.data['W']=W.reshape(sh[0],sh[1],n_clusters)
 		self.data['W_shape']=self.data['W'].shape
-		if frame_rate == []:
+		if frame_rate==[]:
 			self.data['fr']=10
 			print('No fr given. Defaulting to 10')
 		else:
@@ -830,7 +854,7 @@ class GUI(Tk):
 	def help(self):
 		print('To load a dataset:\npyanthem.load_data()\n\nTo load a cfg file:\npyanthem.load_config()\n\nTo write video:\npyanthem.write_video()\n\nTo write audio:\npyanthem.write_audio()')
 
-if __name__ == "__main__":
+if __name__=="__main__":
 	run()
 
 # self\.([a-z_]{1,14})\.get\(\)
