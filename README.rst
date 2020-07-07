@@ -3,7 +3,7 @@ pyanthem: Transforming your datasets into a colorful, audible format
 ********************************************************************
 
 Features:
----------
+=========
 
 1) Raw data decomposition
 2) A variety of video and audio parameters
@@ -31,7 +31,7 @@ Installation
 Note: If you do not have working installations of the above listed requirements, it is strongly recommended that you use miniconda_/Anaconda_ for a straightforward installation process. If you do not have either, minicondais preferred as it is a faster install and takes up much less space.
 
 Using Miniconda/Anaconda:
-----------------
+-------------------------
 
 Create an environment and install the required packages::
 
