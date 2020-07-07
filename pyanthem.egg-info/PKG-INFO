@@ -1,7 +1,7 @@
 Metadata-Version: 2.1
 Name: pyanthem
-Version: 0.67
-Summary: pyanthem - a neuroimaging audiovisualiation tool.
+Version: 0.73
+Summary: pyanthem - an audiovisualization tool to make your data more interesting
 Home-page: https://github.com/nicthib/pyanthem
 Author: Nic Thibodeaux
 Author-email: dnt2111@columbia.edu
@@ -10,7 +10,7 @@ Description: *******************************************************************
         pyanthem: an audiovisualization tool to make your data more interesting
         ***********************************************************************
         
-        pyanthem is a Python_ tool that transforms three-dimensional time-varying datasets into a colorful, audible format. pyanthem boasts a variety of features: 
+        pyanthem is a tool that transforms three-dimensional time-varying datasets into a colorful, audible format. pyanthem boasts a variety of features: 
         
         1) Raw data decomposition
         2) Video and audio preview
@@ -20,14 +20,8 @@ Description: *******************************************************************
         Requirements
         ============
         Python 3:
-           Currently, pyanthem is tested to work on Python_ 3.7+. This will be 
+           Currently, pyanthem is tested to work on `Python 3.7`_. This will be 
            updated as more versions are tested.
-        
-        pip:
-           pip is needed for the installation of the pyanthem module and its
-           dependencies.  Most python versions will have pip installed already, 
-           see the  `pip installation`_ page for instructions if you do not 
-           have pip.
         
         ffmpeg:
            ffmpeg_ enables video creation and merging.
@@ -35,47 +29,51 @@ Description: *******************************************************************
         fluidsynth (optional, but **highly recommended**)
            fluidsynth_ is a powerful software synthesizer, which enables 
            conversion of data to crisp, high quality sound files.
-        
-        git (optional):
-          git_ allows pyanthem to download external audio files quickly and 
-          easily.
           
-        .. _Python: https://www.python.org/
-        .. _`pip installation`: https://pip.pypa.io/en/latest/installing/
-        .. _git: https://git-scm.com/
+        .. _`Python 3.7`: https://www.python.org/downloads/release/python-378/
         .. _ffmpeg: https://ffmpeg.org/
         .. _fluidsynth: http://www.fluidsynth.org/
         
         Installation
         ============
-        Note: If you do not have working versions of the above listed 
-        requirements, it is recommended that you use miniconda_ or Anaconda_ for a
-        straightforward installation process.
+        Note: If you do not have working installations of the above listed 
+        requirements, it is strongly recommended that you use miniconda_/Anaconda_ 
+        for a straightforward installation process. If you do not have either, 
+        minicondais preferred as it is a faster install and takes up much less space.
         
         Using Miniconda/Anaconda:
         ----------------
         
-        First, download the `pyanthem.yaml`_ config file. 
-        Create the environment by navigating to the pyanthem.yaml file's location, 
-        and then by running::
+        Create an environment and install the required packages::
         
-           conda env create -f pyanthem.yaml
+            conda create -n pyanthem python=3.7 pip ffmpeg fluidsynth --channel conda-forge --channel nicthib
         
         Next, activate the environment::
         
            conda activate pyanthem
+        
+        Finally, install pyanthem using pip::
+           
+           pip install pyanthem
            
         Using pip
         ---------
         
-        If you already have the requirements installed, install pyanthem using pip::
+        If you already have the listed requirements installed, install pyanthem 
+        using pip::
         
-           python -m pip install pyanthem
+           pip install pyanthem
         
         .. _miniconda: https://docs.conda.io/en/latest/miniconda.html
         .. _Anaconda: https://www.anaconda.com/products/individual
-        .. _`pyanthem.yaml`: https://drive.google.com/file/d/1N7TB3Fypdwr8Aw1dQDSjyxit5Y-0mLZs
-        .. _here: https://github.com/nicthib/FluidSynth-Windows-Builds/archive/v1.zip
+        
+        Downloading Example datasets
+        ----------------------------
+        
+        If you want to get familiar with the datasets that pyanthem uses, download 
+        this small collection of `datasets/config files`_
+        
+        .. _`datasets/config files`: https://github.com/nicthib/anthem_datasets/archive/master.zip
         
         Usage
         =====
@@ -111,5 +109,5 @@ Platform: UNKNOWN
 Classifier: Programming Language :: Python :: 3
 Classifier: License :: OSI Approved :: MIT License
 Classifier: Operating System :: OS Independent
-Requires-Python: >=3.6
+Requires-Python: >=3.7
 Description-Content-Type: text/markdown

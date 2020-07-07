@@ -28,7 +28,7 @@ def init_entry(fn):
 	'''
 	Generalized version of StringVar/DoubleVar followed by set()
 	'''
-	if isinstance(fn, str):
+	if isinstance(fn, str) or fn is None:
 		entry=StringVar()
 	else:
 		entry=DoubleVar()
@@ -111,7 +111,7 @@ class GUI(Tk):
 		Sends message through print if no GUI, through self.status if GUI is running
 		'''
 		if self.display:
-			self.status['text']=message
+			self.status['text']='♫ '+message
 		else:
 			print(message)
 
@@ -119,16 +119,11 @@ class GUI(Tk):
 		'''
 		Checks to make sure data is loaded.
 		'''
-		if not hasattr(self,'data'):
-			self.message('Error: No dataset has been loaded.')
+		if hasattr(self,'data') and self.cfg['save_path'] is not None:
+			return True
+		else:
+			self.message('Error: No dataset has been loaded or save_path is empty.')
 			return False
-		return True
-
-	def check_save_path(self):
-		if self.cfg['save_path'] is None:
-			print('Error: cfg["save_path"] is empty - please provide one!')
-			return False
-		return True
 
 	def self_to_cfg(self):
 		'''
@@ -296,8 +291,8 @@ class GUI(Tk):
 		'''
 		if self.display:
 			self.self_to_cfg()
-		self.status['text']='Updating...'
-		self.update()
+			self.status['text']='Updating...'
+			self.update()
 		if self.cfg['Wshow'] == 'all':
 			self.Wshow_arr=list(range(len(self.data['H'])))
 		# regex expression which lazily checks for a bracketed expression containing numbers, colons and commas.
@@ -555,9 +550,9 @@ class GUI(Tk):
 		self.protocol("WM_DELETE_WINDOW", self.quit)
 
 		# StringVars
-		self.file_in=init_entry('')
-		self.file_out=init_entry('')
-		self.save_path=init_entry('')
+		self.file_in=init_entry(None)
+		self.file_out=init_entry(None)
+		self.save_path=init_entry(None)
 		self.speed=init_entry(100)
 		self.fr=init_entry(0)
 		self.start_percent=init_entry(0)

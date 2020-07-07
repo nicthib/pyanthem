@@ -5,7 +5,6 @@ pyanthem/__init__.py
 pyanthem/obsolete.py
 pyanthem/pyanthem.py
 pyanthem/pyanthem_vars.py
-pyanthem/scaledata.csv
 pyanthem.egg-info/PKG-INFO
 pyanthem.egg-info/SOURCES.txt
 pyanthem.egg-info/dependency_links.txt
