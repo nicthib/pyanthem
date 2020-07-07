@@ -6,12 +6,12 @@ with open('README.rst', 'r') as fh:
 
 setuptools.setup(
 	name='pyanthem',
-	version='1.0.0',
+	version='1.0.3',
 	author='Nic Thibodeaux',
 	author_email='dnt2111@columbia.edu',
 	description='pyanthem - an audiovisualization tool to make your data more interesting',
 	long_description=long_description,
-	long_description_content_type='text/markdown',
+	long_description_content_type='text/x-rst',
 	url='https://github.com/nicthib/pyanthem',
 	packages=setuptools.find_packages(),
 	setup_requires=[

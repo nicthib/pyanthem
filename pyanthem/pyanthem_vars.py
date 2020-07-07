@@ -78,4 +78,4 @@ static variables
 '''
 C0=16.352
 fs=44100
-tooltipson=Fals
+tooltipson=False

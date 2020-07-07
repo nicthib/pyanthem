@@ -1,9 +1,0 @@
-midiutil
-matplotlib
-pygame
-sklearn
-requests
-googledrivedownloader
-pillow
-Pmw
-mido
