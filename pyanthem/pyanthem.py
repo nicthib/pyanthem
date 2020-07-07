@@ -1,4 +1,5 @@
-import os, random, sys, time, csv, pickle, re, pkg_resources, Pmw, mido
+import os, random, sys, time, csv, pickle, re, pkg_resources, 
+import Pmw, mido
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT']="hide"
 from tkinter import StringVar, DoubleVar, Tk, Label, Entry, Button, OptionMenu, Checkbutton, Message, Menu, IntVar, Scale, HORIZONTAL, simpledialog, messagebox, Toplevel
 from tkinter.ttk import Progressbar, Separator, Combobox
@@ -53,13 +54,6 @@ def uiopen(title,filetypes):
 	root.destroy()
 	return file_in
 
-def download_soundfont():
-	'''
-	Downloads soundfonts from https://sites.google.com/site/soundfonts4u/
-	'''
-	
-	print(f'Sound font  downloaded to soundfont library.')
-
 def run(display=True):
 	'''
 	Main command to run GUI or CLI
@@ -89,14 +83,14 @@ class GUI(Tk):
 		if self.display:
 			Tk.__init__(self)
 			self.default_font=font.nametofont("TkDefaultFont")
-			if self.tooltips_on:
+			if tooltipson:
 				Pmw.initialise()
 				self.balloon=Pmw.Balloon(self)
 			self.initGUI()
 	
 	def quit(self,event=None):
 		'''
-		Quits the GUI instance. currently, jupyter instances are kinda buggy
+		Quits the GUI instance. Currently, jupyter instances are kinda buggy
 		'''
 		try:
 			# This raises a NameError exception in a notebook env, since 
@@ -106,14 +100,14 @@ class GUI(Tk):
 		except NameError:
 			sys.exit()
 
-	def message(self,message):
+	def message(self,msg):
 		'''
 		Sends message through print if no GUI, through self.status if GUI is running
 		'''
 		if self.display:
-			self.status['text']='♫ '+message
+			self.status['text']='♫ '+msg
 		else:
-			print(message)
+			print(msg)
 
 	def check_data(self):
 		'''
@@ -124,17 +118,26 @@ class GUI(Tk):
 		else:
 			self.message('Error: No dataset has been loaded or save_path is empty.')
 			return False
-
+	
 	def self_to_cfg(self):
 		'''
 		This function is necessary to allow command-line access of the GUI functions. 
 		StringVar() and IntVar() allow for dynamic, quick field updating and access, 
-		but cannot be used outside of a mainloop or pickled. for this reason, I convert 
+		but cannot be used outside of a mainloop or be pickled. for this reason, I convert 
 		all StringVars and IntVars to a new dict called 'self.cfg', that can be accessed 
-		oustide the GUI and dumped to a pickle file, which essentially "freezes" the GUI.
+		oustide the GUI and dumped to a pickle file, which essentially "saves" the GUI.
 		'''
 		self.cfg={k: getattr(self,k).get() if self_fns[k] is 'entry' else getattr(self,k) for k in self_fns}
 
+	def dump_cfg(self):
+		'''
+		Saves config file.
+		'''
+		if self.check_data():
+			file_out=os.path.join(self.cfg['save_path'],self.cfg['file_out'])+'_cfg.p'
+			pickle.dump(self.cfg,open(file_out, "wb"))
+			self.message(f'cfg file saved to {file_out}')
+	
 	def load_data(self,filein=None):
 		'''
 		loads dataset from filein. At the time, only supports .mat files.
@@ -177,15 +180,6 @@ class GUI(Tk):
 		self.process_H_W()
 		self.init_plots()
 		self.refresh_GUI()
-	
-	def dump_cfg(self):
-		'''
-		Saves config file. This is run every time a user calls write_audio() or write_video()
-		'''
-		if self.check_data():
-			file_out=os.path.join(self.cfg['save_path'],self.cfg['file_out'])+'_cfg.p'
-			pickle.dump(self.cfg,open(file_out, "wb"))
-			self.message(f'cfg file saved to {file_out}')
 	
 	def load_config(self,filein=None):
 		'''
@@ -806,6 +800,9 @@ class GUI(Tk):
 		return self
 
 	def query(self):
+		'''
+		Prints self attribute to status field
+		'''
 		field=simpledialog.askstring("Input", "Query a root property",parent=self)
 		try:
 			self.status['text']=str(getattr(self,field))
@@ -822,7 +819,6 @@ class GUI(Tk):
 		except:
 			pass
 		
-
 	def help(self):
 		print('To load a dataset:\npyanthem.load_data()\n\nTo load a cfg file:\npyanthem.load_config()\n\nTo write video:\npyanthem.write_video()\n\nTo write audio:\npyanthem.write_audio()')
 

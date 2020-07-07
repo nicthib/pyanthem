@@ -1,3 +1,4 @@
+# conda remove --name pyanthem --all
 import setuptools
 
 with open('README.rst', 'r') as fh:
@@ -5,7 +6,7 @@ with open('README.rst', 'r') as fh:
 
 setuptools.setup(
 	name='pyanthem',
-	version='0.74',
+	version='1.0.0',
 	author='Nic Thibodeaux',
 	author_email='dnt2111@columbia.edu',
 	description='pyanthem - an audiovisualization tool to make your data more interesting',
@@ -24,7 +25,8 @@ setuptools.setup(
 		'requests',
 		'googledrivedownloader',
 		'pillow',
-		'Pmw'
+		'Pmw',
+		'mido'
 	  ],
 	include_package_data=True,
 	classifiers=[
