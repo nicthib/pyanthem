@@ -72,21 +72,51 @@ Once in a notebook, switch to the pyanthem kernel by selecting :code:`Kernel > C
 
 Usage
 =====
+.. code-block:: python
 
-Under construction!
--------------------
+   import pyanthem
+   pyanthem.run()
+
+The first time you run pyanthem, it will download a necessary soundfont file - this will take a minute or two.
+
+.. code-block::
+
+   ♫ Initializing soundfont library...
+   ♫ Downloading 1alSnxnB0JFE6mEGbUZwiYGxt2UsoO3pM into...
+   ♫ 970.9 MiB Done.
+
+Once completed, you should see the pyanthem GUI pop up:
+
+.. image:: https://github.com/nicthib/pyanthem/blob/media/GUI1.png
+
+Next, load a dataset by clicking :code:`File > Load from .mat`. Currently, you can import any .mat file that contains the following variables:
+
+1) (**required**): A 2D matrix of shape :math:`[n,t]`, where each row is a component and each column is a time-point. This variable is referred to as **"H"** in the pyanthem environment.
+
+2) (**optional**): A 3D matrix of shape :math:`[x,y,n]`, where x and y represent the spatial height and width of your dataset. Note that n **must be equal** to variable 1. If this variable is not given, no video output is possible. This variable is referred to as **"W"** in the pyanthem environment.
+
+3) (**optional**): A single float value, representing the frame rate of your dataset in Hz. If a framerate is not given, pyanthem will assume that your dataset is 60 seconds long, and use the appropriate frame rate to prevent large filesizes.
+
+If you're having trouble, try using the example datasets linked above. For this section, we will load the dataset :code:`demo1.mat`. Once loading is complete, the GUI should update with default options, and plots of **H** and **W**:
+
+.. image:: https://github.com/nicthib/pyanthem/blob/media/GUI2.png
+
+The bottom left plots show two representations of the dataset: A preview of the output movie (left), and a visualization of what components are included and the colormap selection. The right two plots show raw representations of **H** (top), and a rough visualiztion of the audio output file (right). Lighter colors indicate loud notes, and darker colors indicate quiet notes, with black indicating silence.
+
+From here, you can adjust parameters, preview the output, and finally save video and audio files. If you want to check how your parameter adjustments impact your audivisualization, click the **Update** button, and your changes will be reflected. Any issues with your selected parameters will be indicated in the white status box. Try adjusting a few parameters and observing how the plots change.
 
 Team
 ====
 
 .. |niclogo| image:: https://avatars1.githubusercontent.com/u/34455769?v=3&s=200
 
-.. csv-table::
-   :align: center
-   :header: Nic Thibodeaux
-
-   |niclogo|
-   `http://github.com/nicthib`
++---------------------------+
+| Nic Thibodeaux            |
++===========================+
+| |niclogo|                 |
++---------------------------+
+| http://github.com/nicthib |
++---------------------------+
 
 FAQ
 ===
