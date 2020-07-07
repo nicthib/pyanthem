@@ -74,10 +74,11 @@ Team
 .. |niclogo| image:: https://avatars1.githubusercontent.com/u/34455769?v=3&s=200
 
 .. csv-table::
+   :align: center
    :header: Nic Thibodeaux
 
    |niclogo|
-    `http://github.com/nicthib`
+   `http://github.com/nicthib`
 
 FAQ
 ===
