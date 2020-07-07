@@ -6,8 +6,10 @@ pyanthem is a tool that transforms three-dimensional time-varying datasets into 
 
 1) Raw data decomposition
 2) Video and audio preview
-3) A broad variety of video and audio parameters
-4) Command-line reproduction via config files
+3) A variety of video and audio parameters
+4) In-place video and audio merge
+5) Command-line reproduction via config files
+
 
 Requirements
 ============
@@ -44,7 +46,7 @@ Next, activate the environment::
 
    conda activate pyanthem
 
-Finally, install pyanthem using pip::
+Finally, install the pyanthem Python package using pip::
    
    pip install pyanthem
    
