@@ -1,5 +1,5 @@
 import os, random, sys, time, csv, pickle, re, pkg_resources
-import Pmw, mido
+import mido
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT']="hide"
 from tkinter import StringVar, DoubleVar, Tk, Label, Entry, Button, OptionMenu, \
 Checkbutton, Message, Menu, IntVar, Scale, HORIZONTAL, simpledialog, messagebox, Toplevel
@@ -75,7 +75,6 @@ class GUI(Tk):
 		the GUI 'hidden'
 		'''
 		self.display=display
-		self.tooltips_on=False
 		self.sf_path=os.path.join(os.path.dirname(os.path.abspath(__file__)),'anthem_soundfonts')
 		if not os.path.isdir(self.sf_path):
 			print('Initializing soundfont library...')
@@ -85,9 +84,6 @@ class GUI(Tk):
 		if self.display:
 			Tk.__init__(self)
 			self.default_font=font.nametofont("TkDefaultFont")
-			if tooltipson:
-				Pmw.initialise()
-				self.balloon=Pmw.Balloon(self)
 			self.initGUI()
 	
 	def quit(self,event=None):
@@ -681,15 +677,6 @@ class GUI(Tk):
 		self.bind_all("<Control-q>", self.quit)
 		self.bind_all("<Control-a>", lambda:[self.process_H_W(),self.refresh_GUI()])
 
-		# tooltips
-		if self.tooltips_on:
-			self.balloon.bind(self.octave_add_menu,'Sets which octave notes begin at. \nHigher values produce higher pitched notes.')
-			self.balloon.bind(self.scale_type_menu,'Scale type for audio - higher notes/oct are recommended for high component datasets.')
-			self.balloon.bind(self.key_menu,'Musical key for audio')
-			self.balloon.bind(self.cmapchooser,'Color map for visualization.')
-			self.balloon.bind(self.threshold_entry,'Minimum value H must reach before rendering an audible note.')
-			self.balloon.bind(self.update_button,'Redraws plots using current config options.')
-
 	def init_plots(self):
 		'''
 		Initializes the plot areas. Is called every time update_GUI() is called.
@@ -758,10 +745,6 @@ class GUI(Tk):
 		self.comps_to_show_entry=Entry(textvariable=self.comps_to_show,width=15,justify='center')
 		self.comps_to_show_entry.grid(row=30, column=6, columnspan=1,sticky='W')
 		
-		# tooltips
-		if self.tooltips_on:
-			self.balloon.bind(self.offsetH, '(Checked) Display lines one seperate y-axes\n(Unchecked) Display all lines with the same y-axis')
-
 	def process_raw(self,file_in=None,n_clusters=None,frame_rate=None,save=False):
 		'''
 		Decomposes raw dataset. Can be used in two ways: as a part of the 

@@ -23,7 +23,6 @@ setuptools.setup(
 		'requests',
 		'googledrivedownloader',
 		'pillow',
-		'Pmw',
 		'mido'
 	  ],
 	include_package_data=True,
