@@ -8,21 +8,19 @@ Features:
 1) Raw data decomposition
 2) A variety of video and audio parameters
 3) In-place video and audio merge
-4) GUI and CLI for 
-
+4) GUI and Command-line interface for maximum flexibility
+5) Example datasets to get you started
 
 Requirements
 ============
-Python 3:
-   Currently, pyanthem is tested to work on `Python 3.7`_. This will be 
-   updated as more versions are tested.
+Python 3.7:
+   Currently, pyanthem is tested to work on `Python 3.7`_. This will be updated as more versions are tested.
 
 ffmpeg:
    ffmpeg_ enables video creation and merging.
 
 fluidsynth (optional, but **highly recommended**)
-   fluidsynth_ is a powerful software synthesizer, which enables 
-   conversion of data to crisp, high quality sound files.
+   fluidsynth_ is a powerful software synthesizer, which enables conversion of data to crisp, high quality sound files.
   
 .. _`Python 3.7`: https://www.python.org/downloads/release/python-378/
 .. _ffmpeg: https://ffmpeg.org/
@@ -30,10 +28,7 @@ fluidsynth (optional, but **highly recommended**)
 
 Installation
 ============
-Note: If you do not have working installations of the above listed 
-requirements, it is strongly recommended that you use miniconda_/Anaconda_ 
-for a straightforward installation process. If you do not have either, 
-minicondais preferred as it is a faster install and takes up much less space.
+Note: If you do not have working installations of the above listed requirements, it is strongly recommended that you use miniconda_/Anaconda_ for a straightforward installation process. If you do not have either, minicondais preferred as it is a faster install and takes up much less space.
 
 Using Miniconda/Anaconda:
 ----------------
@@ -53,8 +48,7 @@ Finally, install the pyanthem Python package using pip::
 Using pip
 ---------
 
-If you already have the listed requirements installed, install pyanthem 
-using pip::
+If you already have the listed requirements installed, install pyanthem using pip::
 
    pip install pyanthem
 
@@ -64,8 +58,7 @@ using pip::
 Downloading Example datasets
 ----------------------------
 
-If you want to get familiar with the datasets that pyanthem uses, download 
-this small collection of `datasets/config files`_
+If you want to get familiar with the datasets that pyanthem uses, download this small collection of `datasets/config files`_
 
 .. _`datasets/config files`: https://github.com/nicthib/anthem_datasets/archive/master.zip
 
@@ -84,13 +77,13 @@ Team
    :header: Nic Thibodeaux
 
    |niclogo|
-    `<http://github.com/nicthib>`
+    `http://github.com/nicthib`
 
 FAQ
 ===
 
-- **How do I do *specifically* so and so?**
-    - No problem! Just do this.
+Under construction!
+-------------------
 
 Support
 =======
