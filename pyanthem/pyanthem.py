@@ -1,7 +1,8 @@
-import os, random, sys, time, csv, pickle, re, pkg_resources, 
+import os, random, sys, time, csv, pickle, re, pkg_resources
 import Pmw, mido
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT']="hide"
-from tkinter import StringVar, DoubleVar, Tk, Label, Entry, Button, OptionMenu, Checkbutton, Message, Menu, IntVar, Scale, HORIZONTAL, simpledialog, messagebox, Toplevel
+from tkinter import StringVar, DoubleVar, Tk, Label, Entry, Button, OptionMenu, \
+Checkbutton, Message, Menu, IntVar, Scale, HORIZONTAL, simpledialog, messagebox, Toplevel
 from tkinter.ttk import Progressbar, Separator, Combobox
 from tkinter import filedialog as fd 
 import tkinter.font as font
@@ -59,7 +60,7 @@ def run(display=True):
 	Main command to run GUI or CLI
 	'''
 	root=GUI(display=display)
-	sys.ps1 = '♫ '
+	sys.ps1='♫ '
 	if display:
 		root.mainloop()
 	else:
@@ -79,7 +80,8 @@ class GUI(Tk):
 		if not os.path.isdir(self.sf_path):
 			print('Initializing soundfont library...')
 			os.mkdir(self.sf_path)
-			gdd.download_file_from_google_drive(file_id=sound_font,dest_path=os.path.join(os.path.join(os.path.dirname(os.path.abspath(__file__)),'anthem_soundfonts'),'font.sf2'),showsize=True)
+			gdd.download_file_from_google_drive(file_id=sound_font,dest_path=\
+				os.path.join(os.path.join(os.path.dirname(os.path.abspath(__file__)),'anthem_soundfonts'),'font.sf2'),showsize=True)
 		if self.display:
 			Tk.__init__(self)
 			self.default_font=font.nametofont("TkDefaultFont")
@@ -93,8 +95,7 @@ class GUI(Tk):
 		Quits the GUI instance. Currently, jupyter instances are kinda buggy
 		'''
 		try:
-			# This raises a NameError exception in a notebook env, since 
-			# sys.exit() is not an appropriate method
+			# This raises a NameError exception in a notebook env, since sys.exit() is not an appropriate method
 			get_ipython().__class__.__name__ 
 			self.destroy()
 		except NameError:
@@ -173,7 +174,7 @@ class GUI(Tk):
 		# Set some defaults
 		self.file_out.set(self.file_in.get())
 		self.save_path.set(os.path.split(filein)[0])
-		Hstr='H' # for whatever reason, can't double nest quotations in an f-string :/
+		Hstr='H' # for whatever reason, can't double nest quotations in an f-string
 		self.brightness.set(f'{float(f"{np.mean(self.data[Hstr])+np.std(self.data[Hstr]):.3g}"):g}')
 		self.threshold.set(f'{float(f"{np.mean(self.data[Hstr])+np.std(self.data[Hstr]):.3g}"):g}')
 		self.Wshow_arr=list(range(len(self.data['H'])))
@@ -266,8 +267,11 @@ class GUI(Tk):
 		self.Hax2.spines['right'].set_visible(False)
 		self.Hax2.yaxis.tick_right()
 		self.Hax2.yaxis.set_label_position("right")
-		self.imWH=self.Wax1.imshow((self.data['W_pp']@np.diag(self.data['H_pp'][:,self.frameslider.get()])@self.cmap[:,:-1]*(255/self.cfg['brightness'])).reshape(self.data['W_shape'][0],self.data['W_shape'][1],3).clip(min=0,max=255).astype('uint8'))
-		self.imW=self.Wax2.imshow((self.data['W_pp']@self.cmap[:,:-1]*255/np.max(self.data['W_pp'])).reshape(self.data['W_shape'][0],self.data['W_shape'][1],3).clip(min=0,max=255).astype('uint8'))
+		self.imWH=self.Wax1.imshow((self.data['W_pp']@np.diag(self.data['H_pp'][:,self.frameslider.get()])\
+			@self.cmap[:,:-1]*(255/self.cfg['brightness'])).reshape(self.data['W_shape'][0],self.data['W_shape'][1],3)\
+			.clip(min=0,max=255).astype('uint8'))
+		self.imW=self.Wax2.imshow((self.data['W_pp']@self.cmap[:,:-1]*255/np.max(self.data['W_pp'])).\
+			reshape(self.data['W_shape'][0],self.data['W_shape'][1],3).clip(min=0,max=255).astype('uint8'))
 		
 		self.H_p_plot.axes.set_aspect('auto')
 		self.imW.axes.set_aspect('equal')
@@ -285,7 +289,7 @@ class GUI(Tk):
 		'''
 		if self.display:
 			self.self_to_cfg()
-			self.status['text']='Updating...'
+			self.message('Updating...')
 			self.update()
 		if self.cfg['Wshow'] == 'all':
 			self.Wshow_arr=list(range(len(self.data['H'])))
@@ -322,7 +326,7 @@ class GUI(Tk):
 		self.data['H_pp'][self.data['H_pp'] < 0]=0
 		self.data['H_pp'][:,-1]=0
 		self.data['H_pp'][:,0]=0
-		self.nd = []
+		self.nd=[]
 		for i in range(nchan):
 			H_rs=interp1d(t1,self.data['H_pp'][i,:])(t2)
 			H_b=H_rs.copy()
@@ -339,7 +343,7 @@ class GUI(Tk):
 				# Type, time, note, velocity
 				self.nd.append(['note_on',st[j],self.keys[i],int(mag * 127 / Hmax)])
 				self.nd.append(['note_off',en[j],self.keys[i],int(mag * 127 / Hmax)])
-			self.nd = sorted(self.nd, key=lambda x: x[1])
+			self.nd=sorted(self.nd, key=lambda x: x[1])
 		# Colormap
 		cmap=getattr(cmaps,self.cfg['cmapchoice'])
 		self.cmap=cmap(np.linspace(0,1,len(self.data['H_pp'])))
@@ -352,7 +356,9 @@ class GUI(Tk):
 		
 		'''
 		#try: # May want to use hasattr() here instead
-		self.imWH.set_data((self.data['W_pp']@np.diag(self.data['H_pp'][:,self.frameslider.get()])@self.cmap[:,:-1]*(255/self.cfg['brightness'])).reshape(self.data['W_shape'][0],self.data['W_shape'][1],3).clip(min=0,max=255).astype('uint8'))
+		self.imWH.set_data((self.data['W_pp']@np.diag(self.data['H_pp'][:,self.frameslider.get()])\
+			@self.cmap[:,:-1]*(255/self.cfg['brightness'])).reshape(self.data['W_shape'][0],\
+			self.data['W_shape'][1],3).clip(min=0,max=255).astype('uint8'))
 		self.canvas_W.draw()
 		#self.H_vline.set_xdata([self.frameslider.get(), self.frameslider.get()])
 		#self.H_vline.set_ydata(self.Hax1.get_ylim())
@@ -372,8 +378,8 @@ class GUI(Tk):
 			init()
 			set_num_channels(128) # We will never need more than 128...
 		
-		mid = mido.MidiFile()
-		track = mido.MidiTrack()
+		mid=mido.MidiFile()
+		track=mido.MidiTrack()
 		mid.tracks.append(track)
 		mid.ticks_per_beat=1000
 		track.append(mido.MetaMessage('set_tempo', tempo=int(1e6)))
@@ -392,7 +398,8 @@ class GUI(Tk):
 			self.imW.remove()
 			Wtmp=self.data['W_pp'][:,i]
 			cmaptmp=self.cmap[i,:-1]
-			self.imW=self.Wax2.imshow((Wtmp[:,None]@cmaptmp[None,:]*255/np.max(self.data['W_pp'])).reshape(self.data['W_shape'][0],self.data['W_shape'][1],3).clip(min=0,max=255).astype('uint8'))
+			self.imW=self.Wax2.imshow((Wtmp[:,None]@cmaptmp[None,:]*255/np.max(self.data['W_pp']))\
+				.reshape(self.data['W_shape'][0],self.data['W_shape'][1],3).clip(min=0,max=255).astype('uint8'))
 			self.canvas_W.draw()
 			self.update()
 			if i == 0:
@@ -404,7 +411,7 @@ class GUI(Tk):
 		
 	def write_audio(self):
 		'''
-		Writes audio either from .sf2 using fluidsynth or into raw file.
+		Writes audio from self.nd and font.sf2 using mido/fluidsynth
 		'''
 		if not self.check_data():
 			return
@@ -412,8 +419,8 @@ class GUI(Tk):
 		fn_midi=os.path.join(self.cfg['save_path'],self.cfg['file_out'])+'.mid'
 		fn_wav=os.path.join(self.cfg['save_path'],self.cfg['file_out'])+'.wav'
 		fn_font=os.path.join(os.path.dirname(os.path.abspath(__file__)),'anthem_soundfonts','font.sf2')
-		mid = mido.MidiFile()
-		track = mido.MidiTrack()
+		mid=mido.MidiFile()
+		track=mido.MidiTrack()
 		mid.tracks.append(track)
 		mid.ticks_per_beat=1000
 		track.append(mido.MetaMessage('set_tempo', tempo=int(1e6)))
@@ -432,7 +439,7 @@ class GUI(Tk):
 			t2=np.linspace(0,len(self.data['H_pp'].T)/self.cfg['fr'],ns)
 			nchan=len(self.data['H_pp'])
 			Hmax=np.max(self.data['H_pp'])
-			H_rs = np.zeros((nchan,ns))
+			H_rs=np.zeros((nchan,ns))
 			ticks=int(mid.ticks_per_beat/upsample)
 			for i in range(nchan):
 				H_rs[i,:]=interp1d(t1,self.data['H_pp'][i,:])(t2)
@@ -456,7 +463,7 @@ class GUI(Tk):
 	def write_video(self):
 		'''
 		Writes video file using self.data['H_pp'] using ffmpeg. 
-		We avoid using opencv because it is very slow in a conda environment
+		We avoid using opencv because it is very slow in a conda environment.
 		http://zulko.github.io/blog/2013/09/27/read-and-write-video-frames-in-python-using-ffmpeg/
 		'''
 		if not self.check_data():
@@ -470,7 +477,7 @@ class GUI(Tk):
 			'-y', # Auto overwrite
 			'-f', 'image2pipe',
 			'-vcodec','png',
-			'-s', '{}x{}'.format(v_shape[0],v_shape[1]),
+			'-s', '{}x{}'.format(v_shape[0],v_shape[1]), # Video dims
 			'-r', str(self.cfg['fr']*self.cfg['speed']/100),
 			'-i', '-', # The input comes from a pipe
 			'-an', # Tells FFMPEG not to expect any audio
@@ -582,7 +589,8 @@ class GUI(Tk):
 		Label(text='Audio format').grid(row=6, column=5, sticky='E')
 
 		# Messages
-		self.status=Message(text='Welcome to pyanthem v{}!'.format(pkg_resources.require("pyanthem")[0].version),bg='white',fg='black',width=450)
+		self.status=Message(text='Welcome to pyanthem v{}!'.\
+			format(pkg_resources.require("pyanthem")[0].version),bg='white',fg='black',width=450)
 		self.status.grid(row=9, column=2, columnspan=5, sticky='NESW')
 		self.status['anchor']='nw'
 

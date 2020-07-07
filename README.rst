@@ -36,11 +36,11 @@ Using Miniconda/Anaconda:
 -------------------------
 
 Create an environment and install the required packages::
-
+   
     conda create -n pyanthem python=3.7 pip ffmpeg fluidsynth --channel conda-forge --channel nicthib
 
 Next, activate the environment::
-
+   
    conda activate pyanthem
 
 Finally, install the pyanthem Python package using pip::
@@ -53,9 +53,22 @@ Finally, install the pyanthem Python package using pip::
 Downloading Example datasets
 ----------------------------
 
-If you want to get familiar with the datasets that pyanthem uses, download this small collection of `datasets/config files`_
+If you want to get familiar with the datasets that pyanthem uses, download this collection of `datasets/config files`_
 
 .. _`datasets/config files`: https://github.com/nicthib/anthem_datasets/archive/master.zip
+
+Using pyanthem in a Jupyter Notebook
+------------------------------------
+
+To access the pyanthem environment in a Jupyter notebook, first install ipykernel in your environment::
+   
+   conda install -c anaconda ipykernel
+
+After this, create the kernel::
+   
+   python -m ipykernel install --user --name=pyanthem
+
+Once in a notebook, switch to the pyanthem kernel by selecting :code:`Kernel > Change kernel > pyanthem`
 
 Usage
 =====
