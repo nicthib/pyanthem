@@ -1,14 +1,14 @@
-***********************************************************************
-pyanthem: an audiovisualization tool to make your data more interesting
-***********************************************************************
+********************************************************************
+pyanthem: Transforming your datasets into a colorful, audible format
+********************************************************************
 
-pyanthem is a tool that transforms three-dimensional time-varying datasets into a colorful, audible format. pyanthem boasts a variety of features: 
+Features:
+---------
 
 1) Raw data decomposition
-2) Video and audio preview
-3) A variety of video and audio parameters
-4) In-place video and audio merge
-5) Command-line reproduction via config files
+2) A variety of video and audio parameters
+3) In-place video and audio merge
+4) GUI and CLI for 
 
 
 Requirements
