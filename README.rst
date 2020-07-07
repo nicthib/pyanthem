@@ -19,7 +19,7 @@ Python 3.7:
 ffmpeg:
    ffmpeg_ enables video creation and merging.
 
-fluidsynth (optional, but **highly recommended**)
+fluidsynth
    fluidsynth_ is a powerful software synthesizer, which enables conversion of data to crisp, high quality sound files.
   
 .. _`Python 3.7`: https://www.python.org/downloads/release/python-378/
