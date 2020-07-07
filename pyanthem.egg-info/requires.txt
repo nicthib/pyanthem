@@ -1,0 +1,8 @@
+midiutil
+matplotlib
+pygame
+sklearn
+requests
+googledrivedownloader
+pillow
+mido
