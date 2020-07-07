@@ -28,7 +28,9 @@ fluidsynth
 
 Installation
 ============
-Note: If you do not have working installations of the above listed requirements, it is strongly recommended that you use miniconda_/Anaconda_ for a straightforward installation process. If you do not have either, minicondais preferred as it is a faster install and takes up much less space.
+Note: If you do not have working installations of the above listed requirements, it is strongly recommended that you use miniconda_/Anaconda_ for a straightforward installation process. If you do not have either, miniconda is preferred as it is a faster install and takes up much less space.
+
+If you do have the above requirements installed, you can simply install pyanthem using pip: :code:`pip install pyanthem`
 
 Using Miniconda/Anaconda:
 -------------------------
@@ -43,13 +45,6 @@ Next, activate the environment::
 
 Finally, install the pyanthem Python package using pip::
    
-   pip install pyanthem
-   
-Using pip
----------
-
-If you already have the listed requirements installed, install pyanthem using pip::
-
    pip install pyanthem
 
 .. _miniconda: https://docs.conda.io/en/latest/miniconda.html
