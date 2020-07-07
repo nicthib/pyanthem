@@ -1,4 +1,4 @@
-import os, random, sys, time, csv, pickle, re, pkg_resources, Pmw
+import os, random, sys, time, csv, pickle, re, pkg_resources, Pmw, mido
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT']="hide"
 from tkinter import StringVar, DoubleVar, Tk, Label, Entry, Button, OptionMenu, Checkbutton, Message, Menu, IntVar, Scale, HORIZONTAL, simpledialog, messagebox, Toplevel
 from tkinter.ttk import Progressbar, Separator, Combobox
@@ -16,7 +16,6 @@ import matplotlib.ticker as tkr
 import matplotlib.cm as cmaps # https://matplotlib.org/gallery/color/colormap_reference.html
 import numpy as np
 from numpy.matlib import repmat
-from midiutil import MIDIFile # need to move to MIDO for 
 try:
 	from pyanthem.pyanthem_vars import *
 except:
@@ -54,19 +53,12 @@ def uiopen(title,filetypes):
 	root.destroy()
 	return file_in
 
-def download_soundfont(name):
+def download_soundfont():
 	'''
 	Downloads soundfonts from https://sites.google.com/site/soundfonts4u/
 	'''
-	sf_path=os.path.join(os.path.dirname(os.path.abspath(__file__)),'anthem_soundfonts')
-	try:
-		if not os.path.isfile(os.path.join(sf_path,name+'.sf2')):
-			gdd.download_file_from_google_drive(file_id=sound_fonts[name],dest_path=os.path.join(sf_path,name+'.sf2'),showsize=True)
-			print(f'Sound font "{name}.sf2" downloaded to soundfont library.')
-		else:
-			print(f'Sound font "{name}.sf2" already present in soundfont library.')
-	except:
-		print(f'Sound font "{name}.sf2" is not an available font. Please choose from these: {sound_fonts.keys()}')
+	
+	print(f'Sound font  downloaded to soundfont library.')
 
 def run(display=True):
 	'''
@@ -93,8 +85,7 @@ class GUI(Tk):
 		if not os.path.isdir(self.sf_path):
 			print('Initializing soundfont library...')
 			os.mkdir(self.sf_path)
-			for f in sound_fonts.keys():
-				download_soundfont(f)
+			gdd.download_file_from_google_drive(file_id=sound_font,dest_path=os.path.join(os.path.join(os.path.dirname(os.path.abspath(__file__)),'anthem_soundfonts'),'font.sf2'),showsize=True)
 		if self.display:
 			Tk.__init__(self)
 			self.default_font=font.nametofont("TkDefaultFont")
@@ -222,9 +213,6 @@ class GUI(Tk):
 				return self
 
 	def refresh_GUI(self,event=None):
-		'''
-		
-		'''
 		if not self.check_data():
 			return
 		self.init_plots()
@@ -249,7 +237,7 @@ class GUI(Tk):
 			self.legend=self.Hax1.legend((thresh_line[0],), ('Threshold',))
 			#self.legend=self.Hax1.legend((thresh_line[0],zero_line[0]), ('Threshold','Baseline'))
 
-		if self.cfg['audio_format'] == 'Analog':
+		if self.cfg['audio_analog']:
 			self.H_p_plot=self.Hax2.imshow(self.data['H_pp'],interpolation='none',cmap=plt.get_cmap('gray'))
 			self.H_p_plot.set_clim(0, np.max(self.data['H_pp']))
 		else:
@@ -317,9 +305,6 @@ class GUI(Tk):
 			# This is a magic function which transforms bracketed string arrays to actual numpy arrays.
 			# Example: '[1,3,5:8]' --> array([1,3,5,6,7])
 			self.Wshow_arr=eval('np.r_'+self.cfg['Wshow']) 
-			# Edge case
-			if np.max(w) <= len(self.data['H']):
-				self.Wshow_arr=np.asarray(list(range(len(self.data['H']))))[w]
 		else:
 			self.message('For \'components to show\', please input indices with commas and colons enclosed by square brackets, or \'all\' for all components.')
 			return
@@ -338,40 +323,34 @@ class GUI(Tk):
 
 		# Making note dict
 		true_fr=self.cfg['fr']*self.cfg['speed']/100
-		ns=int(len(self.data['H_pp'].T)*1000/true_fr)
+		upsample=1000
+		ns=int(len(self.data['H_pp'].T)*upsample/true_fr)
 		t1=np.linspace(0,len(self.data['H_pp'].T)/self.cfg['fr'],len(self.data['H_pp'].T))
 		t2=np.linspace(0,len(self.data['H_pp'].T)/self.cfg['fr'],ns)
 		nchan=len(self.data['H_pp'])
 		Hmax=np.max(self.data['H_pp'])
 		self.data['H_fp']=np.zeros(np.shape(self.data['H_pp']))
-		self.nd={}
-		self.nd['st'],self.nd['en'],self.nd['note'],self.nd['mag']=[],[],[],[]
+		self.data['H_pp'][self.data['H_pp'] < 0]=0
+		self.data['H_pp'][:,-1]=0
+		self.data['H_pp'][:,0]=0
+		self.nd = []
 		for i in range(nchan):
 			H_rs=interp1d(t1,self.data['H_pp'][i,:])(t2)
 			H_b=H_rs.copy()
 			H_b[H_b<self.cfg['threshold']]=0
 			H_b[H_b>=self.cfg['threshold']]=1
-			H_b[0]=0
-			H_b[-1]=0
 			TC=np.diff(H_b)
 			st=np.argwhere(TC == 1)
 			en=np.argwhere(TC == -1)
-			bn=np.ndarray.flatten(np.argwhere(np.ndarray.flatten(en-st) < 2)).tolist()
 			st=np.ndarray.flatten(st).tolist()
 			en=np.ndarray.flatten(en).tolist()
-			# Remove super short notes (<2 ms)
-			for n in sorted(bn, reverse=True):
-				st.pop(n)
-				en.pop(n)
-			
-			self.nd['st'].extend([x/1000 for x in st])
-			self.nd['en'].extend([x/1000 for x in en])
 			for j in range(len(st)):
 				mag=np.max(H_rs[st[j]:en[j]])
-				self.data['H_fp'][i,int(st[j]*true_fr/1000):int(en[j]*true_fr/1000)]=mag
-				self.nd['mag'].append(int(mag * 127 / Hmax))
-				self.nd['note'].append(self.keys[i])
-			self.data['H_pp'][self.data['H_pp'] < 0]=0
+				self.data['H_fp'][i,int(st[j]*true_fr/upsample):int(en[j]*true_fr/upsample)]=mag
+				# Type, time, note, velocity
+				self.nd.append(['note_on',st[j],self.keys[i],int(mag * 127 / Hmax)])
+				self.nd.append(['note_off',en[j],self.keys[i],int(mag * 127 / Hmax)])
+			self.nd = sorted(self.nd, key=lambda x: x[1])
 		# Colormap
 		cmap=getattr(cmaps,self.cfg['cmapchoice'])
 		self.cmap=cmap(np.linspace(0,1,len(self.data['H_pp'])))
@@ -394,43 +373,46 @@ class GUI(Tk):
 		'''
 		Previews the self.keys list audibly and visually simultaneously.
 		'''
-		if self.audio_format.get().endswith('.sf2') and self.check_data():
-			self.process_H_W()
-			self.message('Previewing notes...')
-			fn_font=os.path.join(os.path.dirname(os.path.abspath(__file__)),'anthem_soundfonts',self.audio_format.get())
-			fn_midi=os.path.join(os.path.dirname(os.path.abspath(__file__)),'preview.mid')
-			fn_wav=os.path.join(os.path.dirname(os.path.abspath(__file__)),'preview.wav')
-			if get_init() is None: # Checks if pygame has initialized audio engine. Only needs to be run once per instance
-				pre_init(fs, -16, 2, 1024)
-				init()
-				set_num_channels(128) # We will never need more than 128...
-			MIDI=MIDIFile(1)  # One track
-			MIDI.addTempo(0,0,60) # addTempo(track, time, tempo)
-			for i in range(len(self.keys)):
-				MIDI.addNote(0, 0, self.keys[i], i/2, .5, 100)
-			with open(fn_midi, 'wb') as mid:
-				MIDI.writeFile(mid)
-			cmd='fluidsynth -ni -F {} -r {} {} {} '.format(fn_wav,fs,fn_font,fn_midi)
-			print(cmd)
-			os.system(cmd)
-			music.load(fn_wav)
-			for i in range(len(self.keys)):
-				t=time.time()
-				self.imW.remove()
-				Wtmp=self.data['W_pp'][:,i]
-				cmaptmp=self.cmap[i,:-1]
-				self.imW=self.Wax2.imshow((Wtmp[:,None]@cmaptmp[None,:]*255/np.max(self.data['W_pp'])).reshape(self.data['W_shape'][0],self.data['W_shape'][1],3).clip(min=0,max=255).astype('uint8'))
-				self.canvas_W.draw()
-				self.update()
-				if i == 0:
-					music.play(0)
-				time.sleep(.5-np.min(((time.time()-t),.5)))
-			os.remove(fn_midi)
-			os.remove(fn_wav)
-			self.refresh_GUI()
-		else:
-			self.message('Please choose an .sf2 under "Audio format" to preview notes.')
-
+		self.process_H_W()
+		self.message('Previewing notes...')
+		fn_font=os.path.join(os.path.dirname(os.path.abspath(__file__)),'anthem_soundfonts','font.sf2')
+		fn_midi=os.path.join(os.path.dirname(os.path.abspath(__file__)),'preview.mid')
+		fn_wav=os.path.join(os.path.dirname(os.path.abspath(__file__)),'preview.wav')
+		if get_init() is None: # Checks if pygame has initialized audio engine. Only needs to be run once per instance
+			pre_init(fs, -16, 2, 1024)
+			init()
+			set_num_channels(128) # We will never need more than 128...
+		
+		mid = mido.MidiFile()
+		track = mido.MidiTrack()
+		mid.tracks.append(track)
+		mid.ticks_per_beat=1000
+		track.append(mido.MetaMessage('set_tempo', tempo=int(1e6)))
+		track.append(mido.Message('program_change', program=sound_presets[self.cfg['sound_preset']], time=0))
+		for i in range(len(self.keys)):
+			track.append(mido.Message('note_on', note=self.keys[i], velocity=100, time=250))
+			track.append(mido.Message('note_off', note=self.keys[i], time=250))
+		track.append(mido.Message('note_off', note=self.keys[i], time=500))
+		mid.save(fn_midi)
+		cmd='fluidsynth -ni -F {} -r {} {} {} '.format(fn_wav,fs,fn_font,fn_midi)
+		print(cmd)
+		os.system(cmd)
+		music.load(fn_wav)
+		for i in range(len(self.keys)):
+			t=time.time()
+			self.imW.remove()
+			Wtmp=self.data['W_pp'][:,i]
+			cmaptmp=self.cmap[i,:-1]
+			self.imW=self.Wax2.imshow((Wtmp[:,None]@cmaptmp[None,:]*255/np.max(self.data['W_pp'])).reshape(self.data['W_shape'][0],self.data['W_shape'][1],3).clip(min=0,max=255).astype('uint8'))
+			self.canvas_W.draw()
+			self.update()
+			if i == 0:
+				music.play(0)
+			time.sleep(.5-np.min(((time.time()-t),.5)))
+		os.remove(fn_midi)
+		os.remove(fn_wav)
+		self.refresh_GUI()
+		
 	def write_audio(self):
 		'''
 		Writes audio either from .sf2 using fluidsynth or into raw file.
@@ -438,39 +420,48 @@ class GUI(Tk):
 		if not self.check_data():
 			return
 		self.process_H_W()
-		if self.cfg['audio_format'] == 'MIDI' or self.cfg['audio_format'].endswith('.sf2'):
-			fn_midi=os.path.join(self.cfg['save_path'],self.cfg['file_out'])+'.mid'
-			fn_wav=os.path.join(self.cfg['save_path'],self.cfg['file_out'])+'.wav'
-			MIDI=MIDIFile(1)  # One track
-			MIDI.addTempo(0,0,60) # addTempo(track, time, tempo)
-			for j in range(len(self.nd['note'])):
-				# addNote(track, channel, pitch, time + i, duration, volume)
-				MIDI.addNote(0, 0, self.nd['note'][j], self.nd['st'][j], (self.nd['en'][j]-self.nd['st'][j]), self.nd['mag'][j])
-			with open(fn_midi, 'wb') as mid:
-				MIDI.writeFile(mid)
-		if self.cfg['audio_format'].endswith('.sf2'):
-			fn_font=os.path.join(os.path.dirname(os.path.abspath(__file__)),'anthem_soundfonts',self.cfg['audio_format'])
-			os.system('fluidsynth -ni -F {} -r {} {} {}'.format(fn_wav,fs,fn_font,fn_midi))
-		elif self.cfg['audio_format'] == 'Analog':
-			freqs=[C0*2**(i/12) for i in range(128)]
-			true_fr=(self.cfg['fr']*self.cfg['speed'])/100
-			ns=int(fs*len(self.data['H_fp'].T)/true_fr)
-			t1=np.linspace(0,len(self.data['H_fp'].T)/self.cfg['fr'],len(self.data['H_fp'].T))
-			t2=np.linspace(0,len(self.data['H_fp'].T)/self.cfg['fr'],ns)
-			H=np.zeros((len(t2),))
-			nchan=len(self.data['H_fp'])
-			for n in range(nchan):
-				Htmp=self.data['H_fp'][n,:]
-				Htmp[Htmp<0]=0
-				Htmp=interp1d(t1,Htmp)(t2)
-				H += np.sin(2*np.pi*freqs[self.keys[n]]*t2)*Htmp
-				Hstr='H_fp'
-				if self.display:
-					self.status['text']=f'Status: Writing audio: {n+1} out of {nchan} channels...'
-					self.update()
-			wav=np.hstack((H[:,None],H[:,None]))
-			wav=np.int16(wav/np.max(np.abs(wav)) * 32767)
-			wavwrite(os.path.join(self.cfg['save_path'],self.cfg['file_out'])+'.wav',fs,wav)
+		fn_midi=os.path.join(self.cfg['save_path'],self.cfg['file_out'])+'.mid'
+		fn_wav=os.path.join(self.cfg['save_path'],self.cfg['file_out'])+'.wav'
+		fn_font=os.path.join(os.path.dirname(os.path.abspath(__file__)),'anthem_soundfonts','font.sf2')
+		mid = mido.MidiFile()
+		track = mido.MidiTrack()
+		mid.tracks.append(track)
+		mid.ticks_per_beat=1000
+		track.append(mido.MetaMessage('set_tempo', tempo=int(1e6)))
+		if not self.cfg['audio_analog']:
+			track.append(mido.Message('program_change', program=sound_presets[self.cfg['sound_preset']], time=0))
+			current_time=0
+			for i in range(len(self.nd)):
+				track.append(mido.Message(self.nd[i][0], time=int(self.nd[i][1]-current_time), note=self.nd[i][2], velocity=self.nd[i][3]))
+				current_time=self.nd[i][1]
+			mid.save(fn_midi)
+		else:
+			true_fr=self.cfg['fr']*self.cfg['speed']/100
+			upsample=100
+			ns=int(len(self.data['H_pp'].T)*upsample/true_fr)
+			t1=np.linspace(0,len(self.data['H_pp'].T)/self.cfg['fr'],len(self.data['H_pp'].T))
+			t2=np.linspace(0,len(self.data['H_pp'].T)/self.cfg['fr'],ns)
+			nchan=len(self.data['H_pp'])
+			Hmax=np.max(self.data['H_pp'])
+			H_rs = np.zeros((nchan,ns))
+			ticks=int(mid.ticks_per_beat/upsample)
+			for i in range(nchan):
+				H_rs[i,:]=interp1d(t1,self.data['H_pp'][i,:])(t2)
+			for chan in range(nchan):
+				track.append(mido.Message('program_change', channel=chan, program=sound_presets[self.cfg['sound_preset']], time=0))
+				track.append(mido.Message('note_on', channel=chan, note=self.keys[chan], time=0))
+				track.append(mido.Message('control_change', channel=chan, control=7, value=0, time=0))
+			for i in range(ns):
+				for chan in range(nchan):
+					if chan==0:
+						realticks=ticks
+					else:
+						realticks=0
+					track.append(mido.Message('control_change', channel=chan, control=7, value=int(H_rs[chan,i]*127/Hmax), time=realticks))
+			for chan in range(nchan):
+				track.append(mido.Message('note_off', channel=chan, note=self.keys[chan], time=0))
+			mid.save(fn_midi)
+		os.system('fluidsynth -ni -F {} -r {} {} {}'.format(fn_wav,fs,fn_font,fn_midi))
 		self.message(f'Audio file written to {self.cfg["save_path"]}')
 
 	def write_video(self):
@@ -577,7 +568,7 @@ class GUI(Tk):
 		self.octave_add=init_entry('2')
 		self.scale_type=init_entry('Maj. 7 (4/oct)')
 		self.key=init_entry('C')
-		self.audio_format=init_entry('Analog')
+		self.sound_preset=init_entry('Piano')
 		self.Wshow=init_entry('all')
 		self.cmapchoice=init_entry('jet')
 		
@@ -620,16 +611,9 @@ class GUI(Tk):
 
 		# Buttons
 		Button(text='Edit',command=self.edit_save_path,width=5).grid(row=6, column=2)
-		Button(text='Preview Notes',width=11,command=self.preview_notes).grid(row=7, column=5,columnspan=2)
+		Button(text='Preview',width=11,command=self.preview_notes).grid(row=7, column=5,columnspan=1)
 		self.update_button=Button(text='Update',width=7,font='Helvetica 14 bold',command=self.process_H_W)
 		self.update_button.grid(row=9, column=1,columnspan=1)
-
-		# Option/combobox values
-		audio_format_opts=['Analog']
-		sf_path=os.path.join(os.path.dirname(os.path.abspath(__file__)),'anthem_soundfonts')
-		if os.path.isdir(sf_path):
-			fonts_avail=text_files=[f for f in os.listdir(sf_path) if f.endswith('.sf2')]
-			audio_format_opts.extend(fonts_avail)
 		
 		# Option Menus
 		self.octave_add_menu=OptionMenu(self,self.octave_add,*octave_add_opts.keys())
@@ -641,9 +625,9 @@ class GUI(Tk):
 		self.key_menu=OptionMenu(self,self.key,*key_opts.keys())
 		self.key_menu.config(width=7)
 		self.key_menu.grid(row=5, column=6, sticky='W')
-		self.audio_format_menu=OptionMenu(self,self.audio_format,*audio_format_opts)
-		self.audio_format_menu.config(width=7)
-		self.audio_format_menu.grid(row=6, column=6, sticky='W')
+		self.sound_preset_menu=OptionMenu(self,self.sound_preset,*sound_presets.keys())
+		self.sound_preset_menu.config(width=7)
+		self.sound_preset_menu.grid(row=6, column=6, sticky='W')
 		
 		# Combo box
 		self.cmapchooser=Combobox(self,textvariable=self.cmapchoice,width=5)
@@ -652,6 +636,11 @@ class GUI(Tk):
 		self.cmapchooser.grid(row=7, column=4, sticky='W')
 		self.cmapchooser.current()
 		self.cmap=[]
+
+		# Checkbox
+		self.audio_analog=IntVar()
+		self.audio_analog.set(1)
+		Checkbutton(self, text="Analog",command=self.process_H_W,variable=self.audio_analog).grid(row=7, column=6,columnspan=1)
 
 		# Menu bar
 		menubar=Menu(self)
@@ -691,7 +680,7 @@ class GUI(Tk):
 		# Offset
 		self.offsetH=IntVar()
 		self.offsetH.set(1)
-		
+
 		# frameslider
 		self.frameslider=Scale(self, from_=0, to=1, orient=HORIZONTAL)
 		self.frameslider['command']=self.refresh_slider

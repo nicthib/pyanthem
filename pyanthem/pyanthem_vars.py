@@ -9,13 +9,14 @@ self_fns = {
 'octave_add':'entry',
 'scale_type':'entry',
 'key':'entry',
-'audio_format':'entry',
+'sound_preset':'entry',
 'Wshow':'entry',
 'cmapchoice':'entry', 
 'speed':'entry',
 'file_in':'entry',
 'file_out':'entry',
 'save_path':'entry',
+'audio_analog':'entry',
 'Wshow_arr':'value'
 }
 
@@ -69,10 +70,12 @@ example_cfg = [join(pth,'anthem_datasets',d) for d in ['demo1_cfg.p','demo2_cfg.
 '''
 Google drive id's for .sf2 files from https://sites.google.com/site/soundfonts4u/
 '''
-sound_fonts={
-'piano_small':'12WYF3pc_kYI5myMjgEUnb-y2CeX3fucx',
-'e-piano':'0B4_6p-MMrzwLeTBfNzl1SmVVSEU',
-'strings':'1c0pCI0YdcFEpSLEbCW8HTzFOlJpz0HS9'
+sound_font = '1alSnxnB0JFE6mEGbUZwiYGxt2UsoO3pM'
+sound_presets = {
+'Piano':0,
+'Strings':24,
+'e-Piano':10,
+'Pad':21
 }
 
 '''
