@@ -148,7 +148,7 @@ class GUI(Tk):
 		for k in data_unk.keys():
 			if k in ('__header__', '__version__', '__globals__'):
 				continue
-			elif len(data_unk[k])==1:
+			elif len(data_unk[k].flatten())==1:
 				data['fr']=float(data_unk[k])
 			elif data_unk[k].ndim==2:
 				data['H']=data_unk[k]
@@ -500,7 +500,8 @@ class GUI(Tk):
 		Merges video and audio with ffmpeg
 		'''
 		fn=os.path.join(self.cfg['save_path'],self.cfg['file_out'])
-		cmd='ffmpeg -hide_banner -loglevel warning -y -i {} -i {} -c:v copy -c:a aac {}'.format(fn+'.mp4',fn+'.wav',fn+'_AV.mp4')
+		print('hey')
+		cmd='ffmpeg -hide_banner -loglevel warning -y -i {} -i {} -c:a aac -map 0:v:0 -map 1:a:0 {}'.format(fn+'.mp4',fn+'.wav',fn+'_AV.mp4')
 		os.system(cmd)
 		self.message(f'A/V file written to {self.cfg["save_path"]}')
 		return self
@@ -745,18 +746,18 @@ class GUI(Tk):
 		self.comps_to_show_entry=Entry(textvariable=self.comps_to_show,width=15,justify='center')
 		self.comps_to_show_entry.grid(row=30, column=6, columnspan=1,sticky='W')
 		
-	def process_raw(self,file_in=None,n_clusters=None,frame_rate=None,save=False):
+	def process_raw(self,data=None,n_clusters=None,frame_rate=None,save=False,file_in=None):
 		'''
 		Decomposes raw dataset. Can be used in two ways: as a part of the 
 		GUI class for immediate processing (e.g. process_raw().write_AV()),
 		or as a method to save a new dataset. 
 		'''
-		if filein is None:
-			filein=uiopen(title='Select .mat file for import',filetypes=[('.mat files','*.mat')])
-		if filein=='.':
-			return
-		dh, var=loadmat(file_in),whosmat(file_in)
-		data=dh[var[0][0]]
+		if data is None:
+			file_in=uiopen(title='Select .mat file for import',filetypes=[('.mat files','*.mat')])
+			if filein=='.':
+				return
+			dh, var=loadmat(file_in),whosmat(file_in)
+			data=dh[var[0][0]]
 		sh=data.shape
 		if len(sh) != 3:
 			self.message('ERROR: input dataset is not 3D.')
@@ -785,27 +786,29 @@ class GUI(Tk):
 		for i in range(len(nnidx)):
 			W[nnidx[i],:]=nnls(H.T,data_nn[i,:])[0]
 		# Sort bottom to top
-		xc,yc=[], []
-		(X,Y)=np.meshgrid(range(sh[0]),range(sh[1]))
+		xc,yc=[],[]
+		(X,Y)=np.meshgrid(range(sh[1]),range(sh[0]))
 		for i in range(len(W.T)):
 			Wtmp=W[:,i].reshape(sh[0],sh[1])
 			xc.append((X*Wtmp).sum() / Wtmp.sum().astype("float"))
 			yc.append((Y*Wtmp).sum() / Wtmp.sum().astype("float"))
-		I=np.argsort(yc).reverse() # Reverse orders from bottom to top
-		W, H=W[:,I],H[I,:]
+		I=np.argsort(yc[::-1]) # Reverse orders from bottom to top
+		W,H=W[:,I],H[I,:]
 		print('done.')
 		
 		# Assign variables and save
 		self.data={}
 		self.data['H']=H
 		self.data['W']=W.reshape(sh[0],sh[1],n_clusters)
-		self.data['W_shape']=self.data['W'].shape
+		#self.data['W_shape']=self.data['W'].shape.flatten()
 		if frame_rate==[]:
 			self.data['fr']=10
 			print('No fr given. Defaulting to 10')
 		else:
 			self.data['fr']=frame_rate
 		if save:
+			if file_in is None:
+				file_in='data.mat'
 			fn=file_in.replace('.mat','_decomp.mat')
 			savemat(fn,self.data)
 			self.message(f'Decomposed data file saved to {fn}')
