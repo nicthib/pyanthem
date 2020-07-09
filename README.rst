@@ -33,7 +33,7 @@ pyanthem was primarily developed to interpret **decomposed** functional imaging 
 
 Here's a visual illustration of NMF:
 
-.. image:: https://en.wikipedia.org/wiki/File:NMF.png
+.. image:: https://upload.wikimedia.org/wikipedia/commons/f/f9/NMF.png
 
 If you would prefer to keep things simple, you can skip matrix decomposition altogether and focus solely on converting raw data to audio - only working with the **H** matrix, where each row represents a variable and each column represents a time point. This approach only produces audio files, and it's up to you if/how you want to merge the audio with your own visual representation.
 
