@@ -31,7 +31,7 @@ Usage
 
 pyanthem was primarily developed to interpret **decomposed** functional imaging datasets - a dataset **V** with shape :code:`[height,width,time]`, decomposed into two lower dimensional matrixes **W** with shape :code:`[height*width,n]`, and **H** with shape :code:`[n,time]` such that :math:`H x W = V`. Here, n represents the number of variables represented by the decomposition. There are various techniques used to decompose matrixes, and it is entirely up to you how you decompose your data - two popular techniques include Non-negative Matrix Factorization (NMF), and Singular Value Decomposition (SVD).
 
-Here's a visual illustration of NMF:
+Here's a visual illustration of NMF (note how **W** and **H** have the same number of columns and rows respectively):
 
 .. image:: https://upload.wikimedia.org/wikipedia/commons/f/f9/NMF.png
 
