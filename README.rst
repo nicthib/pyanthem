@@ -5,11 +5,12 @@ pyanthem: Transforming your datasets into a colorful, audible format
 Features:
 =========
 
-1) Raw data decomposition
+1) Converts three-dimensional datasets to visually pleasing, audible representations
 2) A variety of video and audio parameters
 3) In-place video and audio merge
 4) GUI and Command-line interface for maximum flexibility
 5) Example datasets to get you started
+6) Headache-free installation with an Anaconda environment
 
 Requirements
 ============
@@ -31,7 +32,7 @@ Usage
 
 pyanthem was primarily developed to interpret **decomposed** functional imaging datasets - a dataset **V** with shape :code:`[height,width,time]`, decomposed into two lower dimensional matrixes **W** with shape :code:`[height*width,n]`, and **H** with shape :code:`[n,time]` such that :math:`H x W = V`. Here, n represents the number of variables represented by the decomposition. There are various techniques used to decompose matrixes, and it is entirely up to you how you decompose your data - two popular techniques include Non-negative Matrix Factorization (NMF), and Singular Value Decomposition (SVD).
 
-Here's a visual illustration of NMF:
+Here's a visual illustration of NMF - note that in this example, :code:`n=2`:
 
 .. image:: https://upload.wikimedia.org/wikipedia/commons/f/f9/NMF.png
 
