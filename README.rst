@@ -31,7 +31,7 @@ Usage
 
 pyanthem was primarily developed to interpret **decomposed** functional imaging datasets - a dataset **V** with shape :code:`[height,width,time]`, decomposed into two lower dimensional matrixes **W** with shape :code:`[height*width,n]`, and **H** with shape :code:`[n,time]` such that :math:`H x W = V`. Here, n represents the number of variables represented by the decomposition. There are various techniques used to decompose matrixes, and it is entirely up to you how you decompose your data - two popular techniques include Non-negative Matrix Factorization (NMF), and Singular Value Decomposition (SVD).
 
-Here's a visual illustration of NMF (note how **W** and **H** have the same number of columns and rows respectively):
+Here's a visual illustration of NMF:
 
 .. image:: https://upload.wikimedia.org/wikipedia/commons/f/f9/NMF.png
 
@@ -83,7 +83,7 @@ After this, create the kernel::
 
 Once in a notebook, switch to the pyanthem kernel by selecting :code:`Kernel > Change kernel > pyanthem`
 
-*Note: While the pyanthem kernel will now be visible in any Jupyter notebook session, pyanthem will not function properly unless the Jupyter notebook is launched inside the pyanthem environment.
+*Note: While the pyanthem kernel will now be available in any Jupyter notebook session, pyanthem will not function properly unless the Jupyter notebook is launched inside the pyanthem environment*.
 
 Example
 =======
@@ -112,11 +112,11 @@ Once completed, the pyanthem GUI will initialize:
 
 Next, load a dataset by clicking :code:`File > Load from .mat`. Currently, you can import any .mat file that contains the following variables:
 
-1) (**required**): A 2D matrix of shape :math:`[n,t]`, where each row is a component and each column is a time-point. This variable is referred to as **"H"** in the pyanthem environment.
+1) **H** (**required**): A 2D matrix of shape :math:`[n,t]`, where each row is a component and each column is a time-point. This variable is referred to as **"H"** in the pyanthem environment.
 
-2) (**optional**): A 3D matrix of shape :math:`[x,y,n]`, where x and y represent the spatial height and width of your dataset. If this variable is not given, no video output is possible. This variable is referred to as **"W"** in the pyanthem environment.
+2) **W** (**optional**): A 3D matrix of shape :math:`[x,y,n]`, where x and y represent the spatial height and width of your dataset. If this variable is not given, no video output is possible.
 
-3) (**optional**): A single float value, representing the frame rate of your dataset in Hz. If a framerate is not given, pyanthem will assume that your dataset is 60 seconds long, and use the appropriate frame rate to prevent large filesizes.
+3) **fr** (**optional**): A single float value, representing the frame rate of your dataset in Hz. If a framerate is not given, pyanthem will provide a default.
 
 If you're having trouble, try using the example datasets linked above. For this section, we will load the dataset :code:`demo1.mat`. Once loading is complete, the GUI should update with default options, and plots of **H** and **W**:
 
@@ -131,7 +131,7 @@ Finally, render output files with the :code:`Save` menu.
 Using pyanthem in CLI (command-line interface) mode
 ---------------------------------------------------
 
-pyanthem's CLI mode is useful for running batch conversions of large amounts of data once you are happy with your audiovisualization parameters, and isn't neccesary until you have used the GUI and would like to automate your conversions.
+pyanthem's CLI mode is useful for running batch conversions of large amounts of data once you are happy with your audiovisualization parameters, and isn't necessary until you have used the GUI and would like to automate your conversions.
 
 To run pyanthem in CLI mode, pass the argument :code:`display=False`, and assign the :code:`.run()` method to a variable:
 
