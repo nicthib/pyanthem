@@ -12,8 +12,24 @@ Features:
 5) Example datasets to get you started
 6) Headache-free installation with an Anaconda environment
 
+Usage
+=====
+
+pyanthem was primarily developed to interpret **decomposed** functional imaging datasets - a dataset **V** with shape :code:`[height,width,time]`, decomposed into two lower dimensional matrixes **W** with shape :code:`[height*width,n]`, and **H** with shape :code:`[n,time]` such that :math:`H x W = V`. Here, n represents the number of variables represented by the decomposition. There are various techniques used to decompose matrixes, and it is entirely up to you how you decompose your data - two popular techniques include Non-negative Matrix Factorization (NMF), and Singular Value Decomposition (SVD).
+
+Here's a visual illustration of NMF - note that in this example, :code:`n=2`:
+
+.. image:: https://upload.wikimedia.org/wikipedia/commons/f/f9/NMF.png
+
+If you would prefer to keep things simple, you can skip matrix decomposition altogether and focus solely on converting raw data to audio - only working with the **H** matrix, where each row represents a variable and each column represents a time point. This approach only produces audio files, and it's up to you if/how you want to merge the audio with your own visual representation.
+
+If this is too much information to digest, don't worry! Try the example below to get more familiar with what the data looks like, and how pyanthem transforms it.
+
 Requirements
 ============
+
+*See installation guide below before proceeding!*
+
 `Python 3.7`_:
    Currently, pyanthem is tested to work on Python 3.7. This will be updated as more versions are tested.
 
@@ -31,19 +47,6 @@ Conda (optional, but highly recommended):
 .. _FluidSynth: http://www.fluidsynth.org/
 .. _Miniconda: https://docs.conda.io/en/latest/miniconda.html
 .. _Anaconda: https://www.anaconda.com/products/individual
-
-Usage
-=====
-
-pyanthem was primarily developed to interpret **decomposed** functional imaging datasets - a dataset **V** with shape :code:`[height,width,time]`, decomposed into two lower dimensional matrixes **W** with shape :code:`[height*width,n]`, and **H** with shape :code:`[n,time]` such that :math:`H x W = V`. Here, n represents the number of variables represented by the decomposition. There are various techniques used to decompose matrixes, and it is entirely up to you how you decompose your data - two popular techniques include Non-negative Matrix Factorization (NMF), and Singular Value Decomposition (SVD).
-
-Here's a visual illustration of NMF - note that in this example, :code:`n=2`:
-
-.. image:: https://upload.wikimedia.org/wikipedia/commons/f/f9/NMF.png
-
-If you would prefer to keep things simple, you can skip matrix decomposition altogether and focus solely on converting raw data to audio - only working with the **H** matrix, where each row represents a variable and each column represents a time point. This approach only produces audio files, and it's up to you if/how you want to merge the audio with your own visual representation.
-
-If this is too much information to digest, don't worry! Try the example below to get more familiar with what the data looks like, and how pyanthem transforms it.
 
 Installation
 ============
