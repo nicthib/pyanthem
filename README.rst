@@ -14,18 +14,23 @@ Features:
 
 Requirements
 ============
-Python 3.7:
-   Currently, pyanthem is tested to work on `Python 3.7`_. This will be updated as more versions are tested.
+`Python 3.7`_:
+   Currently, pyanthem is tested to work on Python 3.7. This will be updated as more versions are tested.
 
-ffmpeg:
-   ffmpeg_ enables video creation and merging.
+FFmpeg_:
+   ffmpeg enables video creation and merging.
 
-fluidsynth
-   fluidsynth_ is a powerful software synthesizer, which enables conversion of data to crisp, high quality sound files.
-  
+FluidSynth_:
+   FluidSynth enables conversion of MIDI files to crisp, high quality sound files.
+   
+Conda (optional, but highly recommended):
+   Conda enables simple and reliable package installation. Use Miniconda_ for a minimal installation, or Anaconda_ otherwise.
+
 .. _`Python 3.7`: https://www.python.org/downloads/release/python-378/
-.. _ffmpeg: https://ffmpeg.org/
-.. _fluidsynth: http://www.fluidsynth.org/
+.. _FFmpeg: https://ffmpeg.org/
+.. _FluidSynth: http://www.fluidsynth.org/
+.. _Miniconda: https://docs.conda.io/en/latest/miniconda.html
+.. _Anaconda: https://www.anaconda.com/products/individual
 
 Usage
 =====
@@ -42,7 +47,7 @@ If this is too much information to digest, don't worry! Try the example below to
 
 Installation
 ============
-Note: If you do not have working installations of the listed requirements (Python 3.7 + fluidsynth + ffmpeg), it is strongly recommended that you use miniconda_/Anaconda_ for a straightforward installation process. If you do not have either, miniconda is preferred as it is a faster install and takes up much less space than Anaconda.
+Note: If you do not have working installations of the listed requirements (Python 3.7 + fluidsynth + ffmpeg), it is strongly recommended that you use Miniconda_/Anaconda_ for a straightforward installation process. If you do not have either, Miniconda is preferred as it is a faster install and takes up much less space than Anaconda.
 
 If you do have the above requirements installed, you can install pyanthem using pip: :code:`pip install pyanthem`
 
@@ -60,9 +65,6 @@ Next, activate the environment::
 Finally, install the pyanthem Python package using pip::
    
    pip install pyanthem
-
-.. _miniconda: https://docs.conda.io/en/latest/miniconda.html
-.. _Anaconda: https://www.anaconda.com/products/individual
 
 Downloading Example datasets
 ----------------------------
