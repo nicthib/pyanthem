@@ -1,5 +1,4 @@
-import os, random, sys, time, csv, pickle, re, pkg_resources
-import mido
+import os, random, sys, time, csv, pickle, re, pkg_resources, mido
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT']="hide"
 from tkinter import StringVar, DoubleVar, Tk, Label, Entry, Button, OptionMenu, \
 Checkbutton, Message, Menu, IntVar, Scale, HORIZONTAL, simpledialog, messagebox, Toplevel
@@ -37,7 +36,7 @@ def init_entry(fn):
 	entry.set(fn)
 	return entry
 
-def stack_videos(videos,fn='output.mp4'):
+def stack_videos(videos,fn):
 	'''
 	Stacks .mp4 videos horizontally (and combines audio)
 	'''
@@ -103,7 +102,7 @@ class GUI(Tk):
 		Sends message through print if no GUI, through self.status if GUI is running
 		'''
 		if self.display:
-			self.status['text']='♫ '+msg
+			self.status['text']=msg
 		else:
 			print(msg)
 
@@ -240,6 +239,7 @@ class GUI(Tk):
 				tmpH=self.data['H_pp'].T
 
 			self.Hax1.cla()
+			self.Hax1.set_title('Temporal Data (H)')
 			self.Hax1.plot(tmpH,linewidth=.5)
 			for i,j in enumerate(self.Hax1.lines):
 				j.set_color(self.cmap[i])
@@ -441,7 +441,7 @@ class GUI(Tk):
 				H_rs[i,:]=interp1d(t1,self.data['H_pp'][i,:])(t2)
 			for chan in range(nchan):
 				track.append(mido.Message('program_change', channel=chan, program=sound_presets[self.cfg['sound_preset']], time=0))
-				track.append(mido.Message('note_on', channel=chan, note=self.keys[chan], time=0))
+				track.append(mido.Message('note_on', channel=chan, note=self.keys[chan], time=0, velocity=127))
 				track.append(mido.Message('control_change', channel=chan, control=7, value=0, time=0))
 			for i in range(ns):
 				for chan in range(nchan):
@@ -500,7 +500,6 @@ class GUI(Tk):
 		Merges video and audio with ffmpeg
 		'''
 		fn=os.path.join(self.cfg['save_path'],self.cfg['file_out'])
-		print('hey')
 		cmd='ffmpeg -hide_banner -loglevel warning -y -i {} -i {} -c:a aac -map 0:v:0 -map 1:a:0 {}'.format(fn+'.mp4',fn+'.wav',fn+'_AV.mp4')
 		os.system(cmd)
 		self.message(f'A/V file written to {self.cfg["save_path"]}')
@@ -684,11 +683,10 @@ class GUI(Tk):
 		'''
 		# H
 		if 'H_pp' in self.data:
-			self.figH=plt.Figure(figsize=(6,6), dpi=100, tight_layout=True)
+			self.figH=plt.Figure(figsize=(7,6), dpi=100, tight_layout=True)
 			self.Hax1=self.figH.add_subplot(211)
 			self.Hax2=self.figH.add_subplot(212)
-			self.Hax1.set_title('Temporal Data (H)')
-			self.Hax2.set_title('Audio Preview (H\')')
+			self.Hax2.set_title('Audio Preview')
 			self.canvas_H=FigureCanvasTkAgg(self.figH, master=self)
 			self.canvas_H.get_tk_widget().grid(row=1,column=7,rowspan=30,columnspan=10)
 			bg=self.status.winfo_rgb(self['bg'])
@@ -698,7 +696,7 @@ class GUI(Tk):
 			self.Hax1.spines['bottom'].set_visible(False)
 			self.Hax1.spines['right'].set_visible(False)
 			self.Hax1.yaxis.tick_right()
-			self.Hax1.yaxis.set_label_position("right")
+			self.Hax1.yaxis.set_label_position('right')
 			self.Hax1.tick_params(axis='x',which='both',bottom=False, top=False, labelbottom=False, right=False)
 			self.Hax2.set(xlabel='time (sec)',ylabel='Component #')
 			self.Hax2.spines['left'].set_visible(False)
@@ -706,7 +704,7 @@ class GUI(Tk):
 			self.Hax2.spines['bottom'].set_visible(False)
 			self.Hax2.spines['right'].set_visible(False)
 			self.Hax2.yaxis.tick_right()
-			self.Hax2.yaxis.set_label_position("right")
+			self.Hax2.yaxis.set_label_position('right')
 			# Checkbox
 			Checkbutton(self, text="Offset H",command=self.refresh_GUI,variable=self.offsetH).grid(row=1,rowspan=1,column=16)
 		

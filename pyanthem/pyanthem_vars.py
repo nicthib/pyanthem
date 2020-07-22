@@ -38,8 +38,8 @@ scale_keys={
 'Min. chord (3/oct)':[0,3,7],
 'Maj. 7 (4/oct)':[0,4,7,11],
 'Min. 7 (4/oct)':[0,3,7,11],
-'Maj. 2/9 (4/oct)':[0,2,4,7,11],
-'Min. 2/9 (4/oct)':[0,2,3,7,11]
+'Maj. 2/9 (5/oct)':[0,2,4,7,11],
+'Min. 2/9 (5/oct)':[0,2,3,7,11]
 }
 
 key_opts={
@@ -65,7 +65,7 @@ cmaps_opts=tuple(sorted(['viridis', 'plasma', 'inferno', 'magma', 'cividis',
 '''
 Google drive id for .sf2 files from https://sites.google.com/site/soundfonts4u/
 '''
-sound_font='1alSnxnB0JFE6mEGbUZwiYGxt2UsoO3pM'
+sound_font='17QuXRbApe0JTlYfBs7iSMCMu3xRWMHOV'
 sound_presets={
 'Piano':0,
 'Strings':24,
