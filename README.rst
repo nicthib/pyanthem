@@ -174,14 +174,15 @@ Team
 ====
 
 .. |niclogo| image:: https://avatars1.githubusercontent.com/u/34455769?v=3&s=200
+.. |hillmanlogo| image:: https://avatars3.githubusercontent.com/u/68741397?s=200
 
-+---------------------------+
-| Nic Thibodeaux            |
-+===========================+
-| |niclogo|                 |
-+---------------------------+
-| http://github.com/nicthib |
-+---------------------------+
++---------------------------+------------------------------+
+| Nic Thibodeaux            | Hillman Lab                  |
++===========================+==============================+
+| |niclogo|                 | |hillmanlogo|                |
++---------------------------+------------------------------+
+| http://github.com/nicthib | http://github.com/hillmanlab |
++---------------------------+------------------------------+
 
 FAQ
 ===
