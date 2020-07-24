@@ -174,7 +174,7 @@ Team
 ====
 
 .. |niclogo| image:: https://avatars1.githubusercontent.com/u/34455769?v=3&s=200
-.. |hillmanlogo| image:: https://avatars3.githubusercontent.com/u/68741397?s=200
+.. |hillmanlogo| image:: https://avatars1.githubusercontent.com/u/68741397?v=3&s=200
 
 +---------------------------+------------------------------+
 | Nic Thibodeaux            | Hillman Lab                  |
