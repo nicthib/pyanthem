@@ -1,10 +1,9 @@
 import os, random, sys, time, csv, pickle, re, pkg_resources, mido
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT']="hide"
-from tkinter import StringVar, DoubleVar, Tk, Label, Entry, Button, OptionMenu, \
-Checkbutton, Message, Menu, IntVar, Scale, HORIZONTAL, simpledialog, messagebox, Toplevel
-from tkinter.ttk import Progressbar, Separator, Combobox
+from tkinter import *
+from tkinter.ttk import *
 from tkinter import filedialog as fd 
-import tkinter.font as font
+from ttkthemes import ThemedTk
 from scipy.io import loadmat, savemat, whosmat
 from scipy.optimize import nnls
 from scipy.interpolate import interp1d
@@ -36,15 +35,38 @@ def init_entry(fn):
 	entry.set(fn)
 	return entry
 
-def stack_videos(videos,fn):
+def stack_files(files,fmts,fn):
 	'''
 	Stacks .mp4 videos horizontally (and combines audio)
+	the fmts argument is a list of three possible formats: 'a', 'v', or 'av'
+	Videos must match in height.
 	'''
-	nvids=len(videos)
-	instr=''
-	for i in range(len(videos)):
-		instr += ' -i '+videos[i]
-	os.system('ffmpeg -y '+instr+' -filter_complex "[0:v][1:v]hstack=inputs='+str(nvids)+'[v]; [0:a][1:a]amerge[a]" -map "[v]" -map "[a]" -ac 2 '+fn)
+	nv=len([fmt for fmt in fmts if 'v' in fmt])
+	na=len([fmt for fmt in fmts if 'a' in fmt])
+	vf=[i for i,fmt in enumerate(fmts) if 'v' in fmt]
+	af=[i for i,fmt in enumerate(fmts) if 'a' in fmt]
+
+	# 3 cases: 1) Videos and audio, 2) Only videos, 3) Only audio
+	filter_command='"'
+	map_command=''
+	for v in vf:
+		filter_command+='[{}:v]'.format(v)
+	if nv > 0:
+		filter_command+='hstack=inputs={}[v]'.format(nv)
+		if na>0:
+			filter_command+=';'
+		map_command+='-map "[v]" '
+	for a in af:
+		filter_command+='[{}:a]'.format(a)
+	if na > 0:
+		filter_command+='amerge[a]'
+		map_command+='-map "[a]"'
+	filter_command+='"'
+	in_command=''
+	for i in range(len(files)):
+		in_command += ' -i '+files[i]
+	full_command = 'ffmpeg -y '+in_command+' -filter_complex '+filter_command+' '+map_command+' -ac 2 '+fn
+	os.system(full_command)
 
 def uiopen(title,filetypes):
 	root=Tk()
@@ -63,10 +85,10 @@ def run(display=True):
 	if display:
 		root.mainloop()
 	else:
-		print('Welcome to pyanthem v{}!'.format(pkg_resources.require("pyanthem")[0].version))
+		print('Welcome to pyanthem v{}!'.format(pkg_resources.require('pyanthem')[0].version))
 		return root
 
-class GUI(Tk):
+class GUI(ThemedTk):
 	def __init__(self,display=True):
 		'''
 		Initializes the GUI instance. display=True runs the Tk.__init__(self)
@@ -81,8 +103,8 @@ class GUI(Tk):
 			gdd.download_file_from_google_drive(file_id=sound_font,dest_path=\
 				os.path.join(os.path.join(os.path.dirname(os.path.abspath(__file__)),'anthem_soundfonts'),'font.sf2'),showsize=True)
 		if self.display:
-			Tk.__init__(self)
-			self.default_font=font.nametofont("TkDefaultFont")
+			ThemedTk.__init__(self)
+			self.set_theme('clearlooks')
 			self.initGUI()
 	
 	def quit(self,event=None):
@@ -139,7 +161,7 @@ class GUI(Tk):
 		loads dataset from filein. At the time, only supports .mat files.
 		'''
 		if filein is None:
-			filein=uiopen(title='Select .mat file for import',filetypes=[('.mat files','*.mat')])
+			filein=uiopen(title='Select mat or hdf5 file for import',filetypes=[('.mat files','*.mat'),('hdf5 files','*.h5'),('hdf5 files','*.hdf5')])
 		if filein=='.':
 			return
 		data={}
@@ -172,7 +194,7 @@ class GUI(Tk):
 		'''
 		GUI-addons for load_data. Prompts user with filedialog, assigns defaults and sets GUI fields. 
 		'''
-		filein=uiopen(title='Select .mat file for import',filetypes=[('.mat files','*.mat')])
+		filein=uiopen(title='Select mat or hdf5 file for import',filetypes=[('.mat files','*.mat'),('hdf5 files','*.h5'),('hdf5 files','*.hdf5')])
 		if filein=='.':
 			return
 		self.load_data(filein)
@@ -221,7 +243,7 @@ class GUI(Tk):
 			if self.frameslider.get() > len(self.data['H_pp'].T): # This (usually) occurs when the user crops the dataset
 				self.frameslider.set(1)
 			self.frameslider['to']=int(len(self.data['H_pp'].T)-1)
-			self.imWH=self.Wax1.imshow((self.data['W_pp']@np.diag(self.data['H_pp'][:,self.frameslider.get()])@\
+			self.imWH=self.Wax1.imshow((self.data['W_pp']@np.diag(self.data['H_pp'][:,int(self.frameslider.get())])@\
 				self.cmap[:,:-1]*(255/self.cfg['brightness'])).reshape(self.data['W_shape'][0],self.data['W_shape'][1],3)\
 				.clip(min=0,max=255).astype('uint8'))
 			self.imW=self.Wax2.imshow((self.data['W_pp']@self.cmap[:,:-1]*255/np.max(self.data['W_pp'])).\
@@ -353,9 +375,9 @@ class GUI(Tk):
 
 	def refresh_slider(self,event):
 		'''
-		
+		Updates bottom left W plot with slider movement
 		'''
-		self.imWH.set_data((self.data['W_pp']@np.diag(self.data['H_pp'][:,self.frameslider.get()])@self.cmap[:,:-1]*(255/self.cfg['brightness'])).reshape(self.data['W_shape'][0],self.data['W_shape'][1],3).clip(min=0,max=255).astype('uint8'))
+		self.imWH.set_data((self.data['W_pp']@np.diag(self.data['H_pp'][:,int(self.frameslider.get())])@self.cmap[:,:-1]*(255/self.cfg['brightness'])).reshape(self.data['W_shape'][0],self.data['W_shape'][1],3).clip(min=0,max=255).astype('uint8'))
 		self.canvas_W.draw()
 
 	def preview_notes(self):
@@ -383,7 +405,6 @@ class GUI(Tk):
 		track.append(mido.Message('note_off', note=self.keys[i], time=500))
 		mid.save(fn_midi)
 		cmd='fluidsynth -ni -F {} -r {} {} {} '.format(fn_wav,fs,fn_font,fn_midi)
-		print(cmd)
 		os.system(cmd)
 		music.load(fn_wav)
 		for i in range(len(self.keys)):
@@ -397,12 +418,13 @@ class GUI(Tk):
 			if i==0:
 				music.play(0)
 			time.sleep(.5-np.min(((time.time()-t),.5)))
-		time.sleep(1)
+		time.sleep(.5)
+		music.unload()
 		try:
 			os.remove(fn_midi)
 			os.remove(fn_wav)
-		except:
-			pass
+		except OSError as e:
+			print("Failed with:", e.strerror)
 		self.refresh_GUI()
 		
 	def write_audio(self):
@@ -455,6 +477,7 @@ class GUI(Tk):
 			mid.save(fn_midi)
 		os.system('fluidsynth -ni -F {} -r {} {} {}'.format(fn_wav,fs,fn_font,fn_midi))
 		self.message(f'Audio file written to {self.cfg["save_path"]}')
+		return self
 
 	def write_video(self):
 		'''
@@ -464,7 +487,6 @@ class GUI(Tk):
 		'''
 		if not self.check_data():
 			return
-
 		self.process_H_W()
 		fn_vid=os.path.join(self.cfg['save_path'],self.cfg['file_out'])+'.mp4'
 		v_shape=self.data['W_shape'][::-1][1:] # Reverse because ffmpeg does hxw
@@ -601,25 +623,16 @@ class GUI(Tk):
 		self.threshold_entry=Entry(textvariable=self.threshold,width=7)
 		self.threshold_entry.grid(row=2, column=6, sticky='W')
 
+		# Styles
+		s = Style()
+		s.configure('my.TButton', font=('Helvetica', 14))
+
 		# Buttons
 		Button(text='Edit',command=self.edit_save_path,width=5).grid(row=6, column=2)
 		Button(text='Preview',width=11,command=self.preview_notes).grid(row=7, column=5,columnspan=1)
-		self.update_button=Button(text='Update',width=7,font='Helvetica 14 bold',command=self.process_H_W)
-		self.update_button.grid(row=9, column=1,columnspan=1)
 		
-		# Option Menus
-		self.octave_add_menu=OptionMenu(self,self.octave_add,*octave_add_opts.keys())
-		self.octave_add_menu.config(width=7)
-		self.octave_add_menu.grid(row=3, column=6, sticky='W')
-		self.scale_type_menu=OptionMenu(self,self.scale_type,*scale_keys.keys())
-		self.scale_type_menu.config(width=11,font=(self.default_font,(8)))
-		self.scale_type_menu.grid(row=4, column=6, sticky='W')
-		self.key_menu=OptionMenu(self,self.key,*key_opts.keys())
-		self.key_menu.config(width=7)
-		self.key_menu.grid(row=5, column=6, sticky='W')
-		self.sound_preset_menu=OptionMenu(self,self.sound_preset,*sound_presets.keys())
-		self.sound_preset_menu.config(width=7)
-		self.sound_preset_menu.grid(row=6, column=6, sticky='W')
+		self.update_button=Button(text='Update',width=7,command=self.process_H_W,style='my.TButton')
+		self.update_button.grid(row=9,column=1,columnspan=1)
 		
 		# Combo box
 		self.cmapchooser=Combobox(self,textvariable=self.cmapchoice,width=5)
@@ -628,6 +641,30 @@ class GUI(Tk):
 		self.cmapchooser.grid(row=7, column=4, sticky='W')
 		self.cmapchooser.current()
 		self.cmap=[]
+
+		self.octave_add_menu=Combobox(self,textvariable=self.octave_add,width=7)
+		self.octave_add_menu['values']=tuple(octave_add_opts.keys())
+		self.octave_add_menu['state']='readonly'
+		self.octave_add_menu.grid(row=3, column=6, sticky='W')
+		self.octave_add_menu.current()
+
+		self.scale_type_menu=Combobox(self,textvariable=self.scale_type,width=11)
+		self.scale_type_menu['values']=tuple(scale_keys.keys())
+		self.scale_type_menu['state']='readonly'
+		self.scale_type_menu.grid(row=4, column=6, sticky='W')
+		self.scale_type_menu.current()
+
+		self.key_menu=Combobox(self,textvariable=self.key,width=7)
+		self.key_menu['values']=tuple(key_opts.keys())
+		self.key_menu['state']='readonly'
+		self.key_menu.grid(row=5, column=6, sticky='W')
+		self.key_menu.current()
+
+		self.sound_preset_menu=Combobox(self,textvariable=self.sound_preset,width=7)
+		self.sound_preset_menu['values']=tuple(sound_presets.keys())
+		self.sound_preset_menu['state']='readonly'
+		self.sound_preset_menu.grid(row=6, column=6, sticky='W')
+		self.sound_preset_menu.current()
 
 		# Checkbox
 		self.audio_analog=IntVar()
@@ -751,10 +788,14 @@ class GUI(Tk):
 		or as a method to save a new dataset. 
 		'''
 		if data is None:
-			file_in=uiopen(title='Select .mat file for import',filetypes=[('.mat files','*.mat')])
+			file_in=uiopen(title='Select mat or hdf5 file for import',filetypes=[('.mat files','*.mat'),('hdf5 files','*.h5'),('hdf5 files','*.hdf5')])
 			if filein=='.':
 				return
-			dh, var=loadmat(file_in),whosmat(file_in)
+			if filein.endswith('.mat'):
+				dh, var=loadmat(file_in),whosmat(file_in)
+			elif filein.endswith('.hdf5') or filein.endswith('.h5'):
+				f=h5py.File(file_in, 'r')
+				var = f.keys()
 			data=dh[var[0][0]]
 		sh=data.shape
 		if len(sh) != 3:
@@ -767,7 +808,8 @@ class GUI(Tk):
 		# k-means
 		print('Performing k-means...',end='')
 		if n_clusters is None:
-			n_clusters=int(len(data)**.25) # Default k is the 4th root of the number of samples per frame (for 256x256, this would be 16)
+			# Default k is the 4th root of the number of samples per frame (for 256x256, this would be 16)
+			n_clusters=int(len(data)**.25) 
 			print(f'No num_clusters given. Defaulting to {n_clusters}...',end='')
 		idx_nn=KMeans(n_clusters=n_clusters, random_state=0).fit(data_nn).labels_
 		idx=np.zeros((len(data),))

@@ -15,7 +15,7 @@ Features:
 Usage
 =====
 
-pyanthem was primarily developed to interpret **decomposed** functional imaging datasets - a dataset **V** with shape :code:`[height,width,time]`, decomposed into two lower dimensional matrixes **W** with shape :code:`[height*width,n]`, and **H** with shape :code:`[n,time]` such that :math:`H x W = V`. Here, n represents the number of variables represented by the decomposition. There are various techniques used to decompose matrixes, and it is entirely up to you how you decompose your data - two popular techniques include Non-negative Matrix Factorization (NMF), and Singular Value Decomposition (SVD).
+pyanthem was primarily developed to interpret **decomposed** functional imaging datasets - a dataset **V** with shape :code:`[height,width,time]`, decomposed into two lower dimensional matrixes **W** with shape :code:`[height*width,n]`, and **H** with shape :code:`[n,time]` such that :code:`H x W = V`. Here, n represents the number of variables represented by the decomposition. There are various techniques used to decompose matrixes, and it is entirely up to you how you decompose your data - two popular techniques include Non-negative Matrix Factorization (NMF), and Singular Value Decomposition (SVD).
 
 Here's a visual illustration of NMF - note that in this example, :code:`n=2`:
 
@@ -118,9 +118,9 @@ Once completed, the pyanthem GUI will initialize:
 
 Next, load a dataset by clicking :code:`File > Load from .mat`. Currently, you can import any .mat file that contains the following variables:
 
-1) **H** (**required**): A 2D matrix of shape :math:`[n,t]`, where each row is a component and each column is a time-point. This variable is referred to as **"H"** in the pyanthem environment.
+1) **H** (**required**): A 2D matrix of shape :code:`[n,t]`, where each row is a component and each column is a time-point. This variable is referred to as **"H"** in the pyanthem environment.
 
-2) **W** (**optional**): A 3D matrix of shape :math:`[x,y,n]`, where x and y represent the spatial height and width of your dataset. If this variable is not given, no video output is possible.
+2) **W** (**optional**): A 3D matrix of shape :code:`[x,y,n]`, where x and y represent the spatial height and width of your dataset. If this variable is not given, no video output is possible.
 
 3) **fr** (**optional**): A single float value, representing the frame rate of your dataset in Hz. If a framerate is not given, pyanthem will provide a default.
 

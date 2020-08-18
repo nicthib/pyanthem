@@ -68,14 +68,12 @@ Google drive id for .sf2 files from https://sites.google.com/site/soundfonts4u/
 sound_font='17QuXRbApe0JTlYfBs7iSMCMu3xRWMHOV'
 sound_presets={
 'Piano':0,
-'Strings':24,
-'E-Piano':10,
-'Pad':21
+'Piano w/ Reverb':1,
+'Strings':2,
+'Rhodes':3
 }
 
 '''
 static variables
 '''
-C0=16.352
 fs=44100
-tooltipson=False

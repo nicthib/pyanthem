@@ -4,7 +4,7 @@ with open('README.rst', 'r') as fh:
 	long_description = fh.read()
 setuptools.setup(
 	name='pyanthem',
-	version='1.1.1',
+	version='1.1.5',
 	author='Nic Thibodeaux',
 	author_email='dnt2111@columbia.edu',
 	description='pyanthem - an audiovisualization tool to make your data more interesting',
@@ -18,12 +18,13 @@ setuptools.setup(
 	install_requires=[
 		'midiutil',
 		'matplotlib',
-		'pygame',
+		'pygame==2.0.0.dev10',
 		'sklearn',
 		'requests',
 		'googledrivedownloader',
 		'pillow',
-		'mido'
+		'mido',
+		'ttkthemes'
 	  ],
 	include_package_data=True,
 	classifiers=[
