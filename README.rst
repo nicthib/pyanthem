@@ -69,14 +69,14 @@ Finally, install the pyanthem Python package using pip::
    
    pip install pyanthem
 
-Downloading Example datasets
+Example datasets and Scripts
 ----------------------------
 
-If you want to get familiar with the datasets that pyanthem uses and try out the example below, download this collection of `datasets/config files`_
+If you want to get familiar with the datasets that pyanthem uses and try some applications of pyanthem, clone this repository or download `here.`
 
-.. _`datasets/config files`: https://github.com/nicthib/anthem_datasets/archive/master.zip
+.. _`here`: https://github.com/nicthib/pyanthem/archive/master.zip
 
-(Optional) Using pyanthem in a Jupyter Notebook
+Using pyanthem in a Jupyter Notebook
 -----------------------------------------------
 
 To access the pyanthem environment in a Jupyter notebook, first install ipykernel in your environment::
@@ -94,8 +94,8 @@ Once in a notebook, switch to the pyanthem kernel by selecting :code:`Kernel > C
 Example
 =======
 
-Starting a pyanthem session (GUI)
----------------------------------
+Using pyanthem in GUI mode
+--------------------------
 
 First, import pyanthem and begin a pyanthem session:
 
@@ -124,7 +124,7 @@ Next, load a dataset by clicking :code:`File > Load from .mat`. Currently, you c
 
 3) **fr** (**optional**): A single float value, representing the frame rate of your dataset in Hz. If a framerate is not given, pyanthem will provide a default.
 
-If you're having trouble, try using the example datasets linked above. For this section, we will load the dataset :code:`demo1.mat`. Once loading is complete, the GUI should update with default options, and plots of **H** and **W**:
+If you're having trouble, make sure that your file only contains the variables listed above. Also, try using the example datasets linked above. For this section, we will load the dataset :code:`demo1.mat`. Once loading is complete, the GUI should update with default options, and plots of **H** and **W**:
 
 .. image:: https://github.com/nicthib/pyanthem/blob/media/GUI2.png
 
@@ -132,12 +132,14 @@ The bottom left plots show two representations of the dataset: A preview of the 
 
 From here, you can adjust parameters, preview the output, and finally save video and audio files. If you want to check how your parameter adjustments impact your audivisualization, click the **Update** button, and your changes will be reflected. Any issues with your selected parameters will be indicated in the white status box. Try adjusting a few parameters and observing how the plots change.
 
-Finally, render output files with the :code:`Save` menu.
+Finally, render output files with the :code:`Save --> Write A/V then merge` menu command.
+
+Congratulations - you've created your first audiovisualization!
 
 Using pyanthem in CLI (command-line interface) mode
 ---------------------------------------------------
 
-pyanthem's CLI mode is useful for running batch conversions of large amounts of data once you are happy with your audiovisualization parameters, and isn't necessary until you have used the GUI and would like to automate your conversions.
+pyanthem's CLI mode is useful for running batch conversions of large amounts of data once you are happy with your audiovisualization parameters, or creating more complex audiovisualizions that use multiple datasets and instruments. CLI mode is not recommended to use until you have used the GUI and are comfortable with the parameters and usage.
 
 To run pyanthem in CLI mode, pass the argument :code:`display=False`, and assign the :code:`.run()` method to a variable:
 
@@ -153,7 +155,7 @@ Next, load a dataset and config file using the :code:`.load_data()` and :code:`.
    g.load_data(file_in=r'path/to/your/file.mat')
    g.load_config(file_in=r'path/to/your/config.p')
 
-Finally, render the audio and videofiles, then merge the outputs using the :code:`.write_audio()`, :code:`.write_video()` and :code:`.merge()` methods:
+Finally, render the audio and video file, then merge the files using the :code:`.write_audio()`, :code:`.write_video()` and :code:`.merge()` methods:
 
 .. code-block:: python
    
@@ -169,6 +171,7 @@ Once you're comfortable with this syntax, you can combine all of these steps int
    config_file = r'path/to/your/config.p'
    g.load_data(file_in=data_file).load_config(file_in=config_file).write_AV().cleanup()
 
+Congratulations - you've created your first audiovisualization in CLI mode!
 
 Team
 ====
