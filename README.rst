@@ -116,15 +116,17 @@ Once completed, the pyanthem GUI will initialize:
 
 .. image:: https://github.com/nicthib/pyanthem/blob/media/GUI1.png
 
-Next, load a dataset by clicking :code:`File > Load from .mat`. Currently, you can import any .mat file that contains the following variables:
+Next, load a dataset by clicking :code:`File > Load from .mat`. For this section, we will load the dataset :code:`demo1.mat`. Currently, you can import any .mat or hdf5 file that contains the following variables:
 
-1) **H** (**required**): A 2D matrix of shape :code:`[n,t]`, where each row is a component and each column is a time-point. This variable is referred to as **"H"** in the pyanthem environment.
+1) Temporal variable (**H, required**): A 2D matrix of shape :code:`[n,t]`, where each row is a component and each column is a time-point. This variable is referred to as **"H"** in the pyanthem environment.
 
-2) **W** (**optional**): A 3D matrix of shape :code:`[x,y,n]`, where x and y represent the spatial height and width of your dataset. If this variable is not given, no video output is possible.
+2) Spatial variable (**W, optional**): A 3D matrix of shape :code:`[x,y,n]`, where x and y represent the spatial height and width of your dataset. If this variable is not given, no video output is possible.
 
-3) **fr** (**optional**): A single float value, representing the frame rate of your dataset in Hz. If a framerate is not given, pyanthem will provide a default.
+3) Framerate (**fr, optional**): A single float value, representing the frame rate of your dataset in Hz. If a framerate is not given, pyanthem will provide a default.
 
-If you're having trouble, make sure that your file only contains the variables listed above. Also, try using the example datasets linked above. For this section, we will load the dataset :code:`demo1.mat`. Once loading is complete, the GUI should update with default options, and plots of **H** and **W**:
+*Note: Make sure to only include these variables in your file to avoid any errors. You can name them however you like, but make sure there are only one of each variable.* 
+
+Once loading is complete, the GUI should update with default options, and plots of **H** and **W**:
 
 .. image:: https://github.com/nicthib/pyanthem/blob/media/GUI2.png
 
