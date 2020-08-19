@@ -120,7 +120,7 @@ Next, load a dataset by clicking :code:`File > Load from .mat`. For this section
 
 1) Temporal variable (**H, required**): A 2D matrix of shape :code:`[n,t]`, where each row is a component and each column is a time-point. This variable is referred to as **"H"** in the pyanthem environment.
 
-2) Spatial variable (**W, optional**): A 3D matrix of shape :code:`[x,y,n]`, where x and y represent the spatial height and width of your dataset. If this variable is not given, no video output is possible.
+2) Spatial variable (**W, optional**): A 3D matrix of shape :code:`[h,w,n]`, where h and w represent the spatial height and width of your dataset. If this variable is not given, no video output is possible.
 
 3) Framerate (**fr, optional**): A single float value, representing the frame rate of your dataset in Hz. If a framerate is not given, pyanthem will provide a default.
 
