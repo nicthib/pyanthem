@@ -1,4 +1,4 @@
-import os, random, sys, time, csv, pickle, re, pkg_resources, mido
+import os, random, sys, time, csv, pickle, re, pkg_resources, mido, h5py
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT']="hide"
 from tkinter import *
 from tkinter.ttk import *
@@ -37,7 +37,7 @@ def init_entry(fn):
 
 def stack_files(files,fmts,fn):
 	'''
-	Stacks .mp4 videos horizontally (and combines audio)
+	Stacks .mp4 videos horizontally, and merges wav files
 	the fmts argument is a list of three possible formats: 'a', 'v', or 'av'
 	Videos must match in height.
 	'''
@@ -164,20 +164,33 @@ class GUI(ThemedTk):
 			filein=uiopen(title='Select mat or hdf5 file for import',filetypes=[('.mat files','*.mat'),('hdf5 files','*.h5'),('hdf5 files','*.hdf5')])
 		if filein=='.':
 			return
-		data={}
-		data_unk=loadmat(filein)
-		for k in data_unk.keys():
+		if filein.endswith('.mat'):
+			data_unk,var=loadmat(filein),whosmat(filein)
+			var = [v[0] for v in var]
+		elif filein.endswith('.hdf5') or filein.endswith('.h5'):
+			data_unk=h5py.File(filein, 'r')
+			var = data_unk.keys
+		data = {}
+		for k in var:
+			print()
+			tmp_var = np.asarray(data_unk[k])
 			if k in ('__header__', '__version__', '__globals__'):
 				continue
-			elif len(data_unk[k].flatten())==1:
-				data['fr']=float(data_unk[k])
-			elif data_unk[k].ndim==2:
-				data['H']=data_unk[k]
-			elif data_unk[k].ndim==3:
-				data['W']=data_unk[k]
-		if ('H' in data and 'W' in data) and data['H'].shape[0] != data['W'].shape[-1] :
-			self.message('Error: Inner dimensions of {} x {} do not match!')
-			return
+			elif len(tmp_var.flatten())==1:
+				data['fr']=float(tmp_var)
+			elif tmp_var.ndim==2:
+				data['H']=tmp_var
+			elif tmp_var.ndim==3:
+				data['W']=tmp_var
+		# Checks inner dimension match if both H and W present in file.
+		if ('H' in data and 'W' in data) and data['H'].shape[0] != data['W'].shape[-1]:
+			# try flipping dims
+			if ('H' in data and 'W' in data) and data['H'].T.shape[0] == data['W'].T.shape[-1]:
+				data['H'] = data['H'].T
+				data['W'] = data['W'].T
+			else:
+				self.message('Error: Inner or outer dimensions of W [shape={}] and H [shape={}] do not match!'.format(data['H'].shape, data['W'].shape))
+				return
 		if 'H' in data:
 			if 'W' in data:
 				data['W_shape']=data['W'].shape
@@ -565,7 +578,7 @@ class GUI(ThemedTk):
 		Initialize GUI fields, labels, dropdowns, etc.
 		'''
 		self.winfo_toplevel().title('pyanthem v{}'.format(pkg_resources.require("pyanthem")[0].version))
-		self.protocol("WM_DELETE_WINDOW", self.quit)
+		self.protocol('WM_DELETE_WINDOW', self.quit)
 
 		# StringVars
 		self.file_in=init_entry(None)
@@ -787,16 +800,6 @@ class GUI(ThemedTk):
 		GUI class for immediate processing (e.g. process_raw().write_AV()),
 		or as a method to save a new dataset. 
 		'''
-		if data is None:
-			file_in=uiopen(title='Select mat or hdf5 file for import',filetypes=[('.mat files','*.mat'),('hdf5 files','*.h5'),('hdf5 files','*.hdf5')])
-			if filein=='.':
-				return
-			if filein.endswith('.mat'):
-				dh, var=loadmat(file_in),whosmat(file_in)
-			elif filein.endswith('.hdf5') or filein.endswith('.h5'):
-				f=h5py.File(file_in, 'r')
-				var = f.keys()
-			data=dh[var[0][0]]
 		sh=data.shape
 		if len(sh) != 3:
 			self.message('ERROR: input dataset is not 3D.')
