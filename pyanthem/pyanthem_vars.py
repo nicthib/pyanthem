@@ -17,7 +17,8 @@ self_fns={
 'file_out':'entry',
 'save_path':'entry',
 'audio_analog':'entry',
-'comps_to_show_arr':'value'
+'comps_to_show_arr':'value',
+'fluidsynthextracommand':'value'
 }
 
 octave_add_opts={

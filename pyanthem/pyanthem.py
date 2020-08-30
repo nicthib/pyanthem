@@ -3,6 +3,7 @@ os.environ['PYGAME_HIDE_SUPPORT_PROMPT']="hide"
 from tkinter import *
 from tkinter.ttk import *
 from tkinter import filedialog as fd 
+from tkinter import simpledialog as sd 
 from ttkthemes import ThemedTk
 from scipy.io import loadmat, savemat, whosmat
 from scipy.optimize import nnls
@@ -49,23 +50,32 @@ def stack_files(files,fmts,fn):
 	# 3 cases: 1) Videos and audio, 2) Only videos, 3) Only audio
 	filter_command='"'
 	map_command=''
-	for v in vf:
-		filter_command+='[{}:v]'.format(v)
-	if nv > 0:
+
+	if nv > 1:
+		for v in vf:
+			filter_command+='[{}:v]'.format(v)
 		filter_command+='hstack=inputs={}[v]'.format(nv)
-		if na>0:
+		map_command+=' -map "[v]" '
+	elif nv == 1:
+		map_command += '-c:v copy -map {}:v:0'.format(vf[0])
+	
+	if na > 1:
+		# Seperate complex filters if video is being merged
+		if nv > 1:
 			filter_command+=';'
-		map_command+='-map "[v]" '
-	for a in af:
-		filter_command+='[{}:a]'.format(a)
-	if na > 0:
-		filter_command+='amerge[a]'
-		map_command+='-map "[a]"'
+		for a in af:
+			filter_command+='[{}:a]'.format(a)
+		filter_command+='amerge=inputs={}[a]'.format(na)
+		map_command+=' -map "[a]" '
+	elif na == 1:
+		map_command += ' -c:a aac -map {}:a:0 '.format(af[0])
+		
 	filter_command+='"'
 	in_command=''
 	for i in range(len(files)):
 		in_command += ' -i '+files[i]
-	full_command = 'ffmpeg -y '+in_command+' -filter_complex '+filter_command+' '+map_command+' -ac 2 '+fn
+	full_command = 'ffmpeg -y '+in_command+' -filter_complex '+filter_command+' '+map_command+' -ac 2 -vsync 0 '+fn
+	print(full_command)
 	os.system(full_command)
 
 def uiopen(title,filetypes):
@@ -417,7 +427,7 @@ class GUI(ThemedTk):
 			track.append(mido.Message('note_off', note=self.keys[i], time=250))
 		track.append(mido.Message('note_off', note=self.keys[i], time=500))
 		mid.save(fn_midi)
-		cmd='fluidsynth -ni -F {} -r {} {} {} '.format(fn_wav,fs,fn_font,fn_midi)
+		cmd='fluidsynth -ni {} -F {} -r {} {} {} '.format(self.cfg['fluidsynthextracommand'],fn_wav,fs,fn_font,fn_midi)
 		os.system(cmd)
 		music.load(fn_wav)
 		for i in range(len(self.keys)):
@@ -488,7 +498,7 @@ class GUI(ThemedTk):
 			for chan in range(nchan):
 				track.append(mido.Message('note_off', channel=chan, note=self.keys[chan], time=0))
 			mid.save(fn_midi)
-		os.system('fluidsynth -ni -F {} -r {} {} {}'.format(fn_wav,fs,fn_font,fn_midi))
+		os.system('fluidsynth -ni {} -F {} -r {} {} {}'.format(self.cfg['fluidsynthextracommand'],fn_wav,fs,fn_font,fn_midi))
 		self.message(f'Audio file written to {self.cfg["save_path"]}')
 		return self
 
@@ -503,7 +513,7 @@ class GUI(ThemedTk):
 		self.process_H_W()
 		fn_vid=os.path.join(self.cfg['save_path'],self.cfg['file_out'])+'.mp4'
 		v_shape=self.data['W_shape'][::-1][1:] # Reverse because ffmpeg does hxw
-		command=[ 'ffmpeg',
+		command=['ffmpeg',
 			'-loglevel', 'warning', # Prevents excessive messages
 			'-hide_banner',
 			'-y', # Auto overwrite
@@ -515,16 +525,20 @@ class GUI(ThemedTk):
 			'-an', # Tells FFMPEG not to expect any audio
 			'-q:v','2', # Quality
 			'-vcodec', 'mpeg4',
+			'-preset', 'ultrafast',
 			fn_vid]
 		pipe=sp.Popen(command, stdin=sp.PIPE)
 		nframes=len(self.data['H_pp'].T)
+		t0 = time.time()
 		for i in range(nframes):
 			frame=(self.data['W_pp']@np.diag(self.data['H_pp'][:,i])@self.cmap[:,:-1]*(255/self.cfg['brightness'])).reshape(self.data['W_shape'][0],self.data['W_shape'][1],3).clip(min=0,max=255).astype('uint8')
 			im=Image.fromarray(frame)
 			im.save(pipe.stdin, 'PNG')
-			if self.display and i%10==0:
-				self.status['text']=f'Writing video file, {i} out of {nframes} frames written'
+			if self.display and i%20==1:
+				self.status['text']=f'Writing video file, {i} out of {nframes} frames written, avg fps: {i/(time.time()-t0)}'
 				self.update()
+			elif not self.display and i%20==1:
+				print(f'Writing video file, {i} out of {nframes} frames written, avg fps: {i/(time.time()-t0)}',end='\r')
 		pipe.stdin.close()
 		pipe.wait()
 		self.message(f'Video file written to {self.cfg["save_path"]}')
@@ -578,6 +592,8 @@ class GUI(ThemedTk):
 		Initialize GUI fields, labels, dropdowns, etc.
 		'''
 		self.winfo_toplevel().title('pyanthem v{}'.format(pkg_resources.require("pyanthem")[0].version))
+		#photo = PhotoImage(file = os.path.join(os.path.dirname(os.path.abspath(__file__)),'logo.png'))
+		#self.iconphoto(False, photo)
 		self.protocol('WM_DELETE_WINDOW', self.quit)
 
 		# StringVars
@@ -598,6 +614,9 @@ class GUI(ThemedTk):
 		self.comps_to_show=init_entry('all')
 		self.cmapchoice=init_entry('jet')
 		
+		self.fluidsynthextracommand = ''
+		#self.ffmpegextracommand = ''
+
 		# Labels
 		Label(text='',font='Helvetica 1 bold').grid(row=0,column=0) # Just to give a border around Seperators
 		Label(text='File Parameters',font='Helvetica 14 bold').grid(row=1,column=1,columnspan=2,sticky='WE')
@@ -687,28 +706,26 @@ class GUI(ThemedTk):
 		# Menu bar
 		menubar=Menu(self)
 		filemenu=Menu(menubar, tearoff=0)
-		filemenu.add_command(label="Load from .mat", command=self.load_GUI)
-		filemenu.add_command(label="Load .cfg", command=self.load_config)
+		filemenu.add_command(label="Load data...", command=self.load_GUI)
+		filemenu.add_command(label="Load config...", command=self.load_config)
 		filemenu.add_command(label="Quit",command=self.quit,accelerator="Ctrl+Q")
 
 		savemenu=Menu(menubar, tearoff=0)
 		savemenu.add_command(label="Audio", command=self.write_audio)
 		savemenu.add_command(label="Video", command=self.write_video)
+		savemenu.add_command(label="Config", command=self.dump_cfg)
 		savemenu.add_command(label="Merge A/V", command=self.merge)
 		savemenu.add_command(label="Write A/V then merge", command=self.write_AV)
 		savemenu.add_command(label="Cleanup", command=self.cleanup)
 
-		cfgmenu=Menu(menubar, tearoff=0)
-		cfgmenu.add_command(label="Save", command=self.dump_cfg)
-		cfgmenu.add_command(label="View", command=self.view_cfg)
-
-		debugmenu=Menu(menubar, tearoff=0)
-		debugmenu.add_command(label="Query", command=self.query)
+		advancedmenu=Menu(menubar, tearoff=0)
+		advancedmenu.add_command(label="Custom fluidsynth params", command=self.fluidsynthextra)
+		#advancedmenu.add_command(label="Custom ffmpeg params", command=self.ffmpegextra)
+		advancedmenu.add_command(label="View config", command=self.view_cfg)
 
 		menubar.add_cascade(label="File", menu=filemenu)
 		menubar.add_cascade(label="Save", menu=savemenu)
-		menubar.add_cascade(label="Config", menu=cfgmenu)
-		menubar.add_cascade(label="Debug", menu=debugmenu)
+		menubar.add_cascade(label="Advanced", menu=advancedmenu)
 		self.config(menu=menubar)
 
 		# Seperators
@@ -860,15 +877,11 @@ class GUI(ThemedTk):
 		self.data['W']=self.data['W'].reshape(self.data['W'].shape[0]*self.data['W'].shape[1],self.data['W'].shape[2])
 		return self
 
-	def query(self):
-		'''
-		Prints self attribute to status field
-		'''
-		field=simpledialog.askstring("Input", "Query a root property",parent=self)
-		try:
-			self.status['text']=str(getattr(self,field))
-		except:
-			self.status['text']='Bad query.'
+	def fluidsynthextra(self):
+		self.fluidsynthextracommand=sd.askstring('Input custom fluidsynth parameters here','',initialvalue=self.fluidsynthextracommand,parent=self)
+
+	#def ffmpegextra(self):
+#		self.ffmpegextracommand=sd.askstring('Input custom ffmpeg parameters here','',initialvalue=self.ffmpegextracommand,parent=self)
 
 	def view_cfg(self):
 		'''

@@ -109,8 +109,8 @@ The first time you run pyanthem, it will download a necessary soundfont file - t
 .. code-block::
 
    ♫ Initializing soundfont library...
-   ♫ Downloading 1alSnxnB0JFE6mEGbUZwiYGxt2UsoO3pM into...
-   ♫ 970.9 MiB Done.
+   ♫ Downloading 17QuXRbApe0JTlYfBs7iSMCMu3xRWMHOV into...
+   ♫ 238.3 MiB Done.
 
 Once completed, the pyanthem GUI will initialize:
 
