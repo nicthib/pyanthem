@@ -15,13 +15,13 @@ Features:
 Usage
 =====
 
-pyanthem was primarily developed to interpret **decomposed** functional imaging datasets - a dataset **V** with shape :code:`[height,width,time]`, decomposed into two lower dimensional matrixes **W** with shape :code:`[height*width,n]`, and **H** with shape :code:`[n,time]` such that :code:`H x W = V`. Here, n represents the number of variables represented by the decomposition. There are various techniques used to decompose matrixes, and it is entirely up to you how you decompose your data - two popular techniques include Non-negative Matrix Factorization (NMF), and Singular Value Decomposition (SVD).
+pyanthem was primarily developed to interpret matrix-decomposed functional imaging datasets - for example, a dataset **V** with shape :code:`[height,width,time]`, is decomposed into two matrixes: **W** with shape :code:`[height*width,n]`, and **H** with shape :code:`[n,time]` such that :code:`H x W = V`. Here, n represents the number of variables represented by the decomposition. There are various techniques used to decompose matrixes - two popular techniques include Non-negative Matrix Factorization (NMF), and Singular Value Decomposition (SVD).
 
-Here's a visual illustration of NMF - note that in this example, :code:`n=2`:
+Here's a visual illustration of matrix decomposition - note that in this example, :code:`n=2`:
 
 .. image:: https://upload.wikimedia.org/wikipedia/commons/f/f9/NMF.png
 
-If you would prefer to keep things simple, you can skip matrix decomposition altogether and focus solely on converting raw data to audio - only working with the **H** matrix, where each row represents a variable and each column represents a time point. This approach only produces audio files, and it's up to you if/how you want to merge the audio with your own visual representation.
+If you would prefer to keep things simple, you can skip matrix decomposition altogether and focus solely on converting raw data to audio - only working with the **H** matrix, where each row represents a variable and each column represents a time point.
 
 If this is too much information to digest, don't worry! Try the example below to get more familiar with what the data looks like, and how pyanthem transforms it.
 
@@ -39,6 +39,8 @@ FFmpeg_:
 FluidSynth_:
    FluidSynth enables conversion of MIDI files to crisp, high quality sound files.
    
+If you do have the above requirements installed, you can install pyanthem using pip: :code:`pip install pyanthem`
+
 Conda (optional, but highly recommended):
    Conda enables simple and reliable package installation. Use Miniconda_ for a minimal installation, or Anaconda_ otherwise.
 
@@ -50,9 +52,7 @@ Conda (optional, but highly recommended):
 
 Installation
 ============
-Note: If you do not have working installations of the listed requirements (Python 3.7 + fluidsynth + ffmpeg), it is strongly recommended that you use Miniconda_/Anaconda_ for a straightforward installation process. If you do not have either, Miniconda is preferred as it is a faster install and takes up much less space than Anaconda.
-
-If you do have the above requirements installed, you can install pyanthem using pip: :code:`pip install pyanthem`
+Note: If you do not have working installations of the listed requirements (Python 3.7 + fluidsynth + ffmpeg), it is **strongly recommended** that you use Miniconda_/Anaconda_ for a straightforward installation process. If you do not have either, Miniconda is preferred as it is a faster install and takes up much less space than Anaconda.
 
 Using Miniconda/Anaconda:
 -------------------------
@@ -107,7 +107,7 @@ First, import pyanthem and begin a pyanthem session:
 The first time you run pyanthem, it will download a necessary soundfont file - this will take a minute or two.
 
 .. code-block::
-
+   
    ♫ Initializing soundfont library...
    ♫ Downloading 17QuXRbApe0JTlYfBs7iSMCMu3xRWMHOV into...
    ♫ 238.3 MiB Done.
