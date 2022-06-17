@@ -79,6 +79,9 @@ def stack_files(files,fmts,fn):
 	os.system(full_command)
 
 def uiopen(title,filetypes):
+	'''
+	Simple uiopen GUI instance.
+	'''
 	root=Tk()
 	root.withdraw()
 	file_in=os.path.normpath(fd.askopenfilename(title=title,filetypes=filetypes))
@@ -168,7 +171,7 @@ class GUI(ThemedTk):
 	
 	def load_data(self,filein=None):
 		'''
-		loads dataset from filein. At the time, only supports .mat files.
+		Loads dataset from filein. At the time, only supports .mat files.
 		'''
 		if filein is None:
 			filein=uiopen(title='Select mat or hdf5 file for import',filetypes=[('.mat files','*.mat'),('hdf5 files','*.h5'),('hdf5 files','*.hdf5')])
@@ -432,12 +435,13 @@ class GUI(ThemedTk):
 		music.load(fn_wav)
 		for i in range(len(self.keys)):
 			t=time.time()
-			self.imW.remove()
-			Wtmp=self.data['W_pp'][:,i]
-			cmaptmp=self.cmap[i,:-1]
-			self.imW=self.Wax2.imshow((Wtmp[:,None]@cmaptmp[None,:]*255/np.max(self.data['W_pp'])).reshape(self.data['W_shape'][0],self.data['W_shape'][1],3).clip(min=0,max=255).astype('uint8'))
-			self.canvas_W.draw()
-			self.update()
+			if 'W' in self.data:
+				self.imW.remove()
+				Wtmp=self.data['W_pp'][:,i]
+				cmaptmp=self.cmap[i,:-1]
+				self.imW=self.Wax2.imshow((Wtmp[:,None]@cmaptmp[None,:]*255/np.max(self.data['W_pp'])).reshape(self.data['W_shape'][0],self.data['W_shape'][1],3).clip(min=0,max=255).astype('uint8'))
+				self.canvas_W.draw()
+				self.update()
 			if i==0:
 				music.play(0)
 			time.sleep(.5-np.min(((time.time()-t),.5)))
