@@ -104,6 +104,8 @@ First, import pyanthem and begin a pyanthem session:
    import pyanthem
    pyanthem.run()
 
+*Note: You may run into an error here where some packages are missing. Simply install them using pip, and try running pyanthem again.*
+
 The first time you run pyanthem, it will download a necessary soundfont file - this will take a minute or two.
 
 .. code-block::
