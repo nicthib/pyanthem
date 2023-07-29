@@ -66,10 +66,19 @@ cmaps_opts=tuple(sorted(['viridis', 'plasma', 'inferno', 'magma', 'cividis',
 '''
 Google drive id for .sf2 files from https://sites.google.com/site/soundfonts4u/
 '''
-sound_font='1VZkoiVOonffpJWxZah-AdQkxaTFIzZ6q'
+sound_font='1TvjLlgKqZxcrZvefciJGX1Q_3e8Cy4dP'
 sound_presets={
-'Piano':0,
-'Strings':20,
+'0':0,
+'1':1,
+'2':2,
+'3':3,
+'4':4,
+'5':5,
+'6':6,
+'7':7,
+'8':8,
+'9':9,
+'10':10,
 }
 
 '''
