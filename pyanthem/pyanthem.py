@@ -21,7 +21,7 @@ try:
 	from pyanthem.pyanthem_vars import *
 except:
 	from pyanthem_vars import *
-from google_drive_downloader import GoogleDriveDownloader as gdd
+import gdown
 import subprocess as sp
 import PIL.Image as Image
 
@@ -113,8 +113,8 @@ class GUI(ThemedTk):
 		if not os.path.isdir(self.sf_path):
 			print('Initializing soundfont library...')
 			os.mkdir(self.sf_path)
-			gdd.download_file_from_google_drive(file_id=sound_font,dest_path=\
-				os.path.join(os.path.join(os.path.dirname(os.path.abspath(__file__)),'anthem_soundfonts'),'font.sf2'),showsize=True)
+			gdown.download('https://drive.google.com/uc?id={}'.format(sound_font),
+				os.path.join(os.path.join(os.path.dirname(os.path.abspath(__file__)),'anthem_soundfonts'),'font.sf2'),quiet=False)
 		if self.display:
 			ThemedTk.__init__(self)
 			self.set_theme('clearlooks')
