@@ -18,7 +18,7 @@ setuptools.setup(
 	install_requires=[
 		'midiutil',
 		'matplotlib',
-		'pygame==2.0.0.dev10',
+		'pygame==2.0.0.dev12',
 		'sklearn',
 		'requests',
 		'googledrivedownloader',
