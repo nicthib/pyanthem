@@ -614,7 +614,7 @@ class GUI(ThemedTk):
 		self.octave_add=init_entry('2')
 		self.scale_type=init_entry('Maj. 7 (4/oct)')
 		self.key=init_entry('C')
-		self.sound_preset=init_entry('Piano')
+		self.sound_preset=init_entry('Yamaha C5 Grand')
 		self.comps_to_show=init_entry('all')
 		self.cmapchoice=init_entry('jet')
 		
@@ -696,7 +696,7 @@ class GUI(ThemedTk):
 		self.key_menu.grid(row=5, column=6, sticky='W')
 		self.key_menu.current()
 
-		self.sound_preset_menu=Combobox(self,textvariable=self.sound_preset,width=7)
+		self.sound_preset_menu=Combobox(self,textvariable=self.sound_preset,width=11)
 		self.sound_preset_menu['values']=tuple(sound_presets.keys())
 		self.sound_preset_menu['state']='readonly'
 		self.sound_preset_menu.grid(row=6, column=6, sticky='W')
