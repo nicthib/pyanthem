@@ -4,7 +4,7 @@ with open('README.rst', 'r') as fh:
 	long_description = fh.read()
 setuptools.setup(
 	name='pyanthem',
-	version='1.2.0',
+	version='1.2.1',
 	author='Nic Thibodeaux',
 	author_email='dnt2111@columbia.edu',
 	description='pyanthem - an audiovisualization tool to make your data more interesting',
@@ -19,7 +19,6 @@ setuptools.setup(
 		'midiutil',
 		'matplotlib',
 		'pygame',
-		'sklearn',
 		'requests',
 		'gdown',
 		'pillow',
