@@ -28,8 +28,8 @@ If this is too much information to digest, don't worry! Try the example below to
 Installation
 ============
 
-Easy Installation Using Anaconda:
--------------------------
+Easy Installation Using Anaconda
+--------------------------------
 First, make sure you have Anaconda_ (or Miniconda) installed before proceeding.
 
 Create an environment and install the required packages::
@@ -45,7 +45,7 @@ Finally, install the pyanthem Python package using pip::
    pip install pyanthem
 
 Manual Installation
------------
+-------------------
 
 First, install ffmpeg and FluidSynth:
 
@@ -65,14 +65,14 @@ Then, install pyanthem using pip: :code:`pip install pyanthem`
 
 *Note: Currently, pyanthem is tested to work on Python 3.7. Please use this version to minimize headaches.*
 
-Example datasets and Scripts
+Example Datasets and Scripts
 ----------------------------
 
-If you want to get familiar with the datasets that pyanthem uses and try some applications of pyanthem, check them out here_.
+Next, download some example datasets to get started here_.
 
 .. _here: https://github.com/nicthib/pyanthem/tree/master/datasets
 
-Using pyanthem in a Jupyter Notebook
+Optional: Using pyanthem in a Jupyter Notebook
 -----------------------------------------------
 
 To access the pyanthem environment in a Jupyter notebook, first install ipykernel in your environment::
