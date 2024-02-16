@@ -159,7 +159,7 @@ class GUI(ThemedTk):
 		all StringVars and IntVars to a new dict called 'self.cfg', that can be accessed 
 		oustide the GUI and dumped to a pickle file, which essentially "saves" the GUI.
 		'''
-		self.cfg={k: getattr(self,k).get() if self_fns[k] is 'entry' else getattr(self,k) for k in self_fns}
+		self.cfg={k: getattr(self,k).get() if self_fns[k] == 'entry' else getattr(self,k) for k in self_fns}
 
 	def dump_cfg(self):
 		'''
@@ -169,19 +169,19 @@ class GUI(ThemedTk):
 		pickle.dump(self.cfg,open(file_out, "wb"))
 		self.message(f'cfg file saved to {file_out}')
 	
-	def load_data(self,filein=None):
+	def load_data(self,file_in=None):
 		'''
-		Loads dataset from filein. At the time, only supports .mat files.
+		Loads dataset from file_in. At the time, only supports .mat files.
 		'''
-		if filein is None:
-			filein=uiopen(title='Select mat or hdf5 file for import',filetypes=[('.mat files','*.mat'),('hdf5 files','*.h5'),('hdf5 files','*.hdf5')])
-		if filein=='.':
+		if file_in is None:
+			file_in=uiopen(title='Select mat or hdf5 file for import',filetypes=[('.mat files','*.mat'),('hdf5 files','*.h5'),('hdf5 files','*.hdf5')])
+		if file_in=='.':
 			return
-		if filein.endswith('.mat'):
-			data_unk,var=loadmat(filein),whosmat(filein)
+		if file_in.endswith('.mat'):
+			data_unk,var=loadmat(file_in),whosmat(file_in)
 			var = [v[0] for v in var]
-		elif filein.endswith('.hdf5') or filein.endswith('.h5'):
-			data_unk=h5py.File(filein, 'r')
+		elif file_in.endswith('.hdf5') or file_in.endswith('.h5'):
+			data_unk=h5py.File(file_in, 'r')
 			var = data_unk.keys
 		data = {}
 		for k in var:
@@ -220,22 +220,23 @@ class GUI(ThemedTk):
 		'''
 		GUI-addons for load_data. Prompts user with filedialog, assigns defaults and sets GUI fields. 
 		'''
-		filein=uiopen(title='Select mat or hdf5 file for import',filetypes=[('.mat files','*.mat'),('hdf5 files','*.h5'),('hdf5 files','*.hdf5')])
-		if filein=='.':
+		file_in=uiopen(title='Select mat or hdf5 file for import',filetypes=[('.mat files','*.mat'),('hdf5 files','*.h5'),('hdf5 files','*.hdf5')])
+		if file_in=='.':
 			return
-		self.load_data(filein)
+		self.load_data(file_in)
 		if not hasattr(self,'data'):
 			return
+
 		self.data['H_pp']=self.data['H']
 		self.data['H_fp']=self.data['H']
 		self.fr.set(self.data['fr'])
 		if 'W' in self.data:
 			self.data['W_pp']=self.data['W']
-		self.file_in.set(os.path.splitext(os.path.split(filein)[1])[0])
+		self.file_in.set(os.path.splitext(os.path.split(file_in)[1])[0])
 
 		# Set some defaults
 		self.file_out.set(self.file_in.get())
-		self.save_path.set(os.path.split(filein)[0])
+		self.save_path.set(os.path.split(file_in)[0])
 		Hstr='H' # for whatever reason, can't double nest quotations in an f-string :/
 		self.brightness.set(f'{float(f"{np.mean(self.data[Hstr])+np.std(self.data[Hstr]):.3g}"):g}')
 		self.threshold.set(f'{float(f"{np.mean(self.data[Hstr])+np.std(self.data[Hstr]):.3g}"):g}')
@@ -243,19 +244,19 @@ class GUI(ThemedTk):
 		self.init_plots()
 		self.process_H_W()
 	
-	def load_config(self,filein=None):
+	def load_config(self,file_in=None):
 		'''
 		Loads .p file containing dict of parameters needed to create outputs. If display=True, sets GUI fields.
 		'''
-		if filein is None:
-			filein=uiopen(title='Select pickle file for import',filetypes=[('pickle file','*.p'),('pickle file','*.pkl'),('pickle file','*.pickle')])
-		if filein=='.':
+		if file_in is None:
+			file_in=uiopen(title='Select pickle file for import',filetypes=[('pickle file','*.p'),('pickle file','*.pkl'),('pickle file','*.pickle')])
+		if file_in=='.':
 			return
-		with open(filein, "rb") as f:
+		with open(file_in, "rb") as f:
 			self.cfg=pickle.load(f)
 			if self.display:
 				for key,value in self.cfg.items():
-					if self_fns[key] is 'entry':
+					if self_fns[key] == 'entry':
 						getattr(self,key).set(value)
 					else:
 						setattr(self,key,value)
@@ -712,6 +713,7 @@ class GUI(ThemedTk):
 		filemenu=Menu(menubar, tearoff=0)
 		filemenu.add_command(label="Load data...", command=self.load_GUI)
 		filemenu.add_command(label="Load config...", command=self.load_config)
+		filemenu.add_command(label="Load raw...", command=self.process_raw)
 		filemenu.add_command(label="Quit",command=self.quit,accelerator="Ctrl+Q")
 
 		savemenu=Menu(menubar, tearoff=0)
@@ -815,12 +817,24 @@ class GUI(ThemedTk):
 		self.comps_to_show_entry=Entry(textvariable=self.comps_to_show,width=15,justify='center')
 		self.comps_to_show_entry.grid(row=30, column=6, columnspan=1,sticky='W')
 		
-	def process_raw(self,data=None,n_clusters=None,frame_rate=None,save=False,file_in=None):
+	def process_raw(self,file_in=None,n_clusters=None,save=False):
 		'''
 		Decomposes raw dataset. Can be used in two ways: as a part of the 
 		GUI class for immediate processing (e.g. process_raw().write_AV()),
 		or as a method to save a new dataset. 
 		'''
+		if file_in is None:
+			file_in=uiopen(title='Select mat or hdf5 file for import',filetypes=[('.mat files','*.mat'),('hdf5 files','*.h5'),('hdf5 files','*.hdf5')])
+
+		if file_in.endswith('.mat'):
+			data_unk,var=loadmat(file_in),whosmat(file_in)
+			var = [v[0] for v in var]
+		elif file_in.endswith('.hdf5') or file_in.endswith('.h5'):
+			data_unk=h5py.File(file_in, 'r')
+			var = data_unk.keys
+		if len(var) != 1:
+			self.message('ERROR: Please use a file with only 1 variable that is 3D')
+		data=np.asarray(data_unk[var[0]])
 		sh=data.shape
 		if len(sh) != 3:
 			self.message('ERROR: input dataset is not 3D.')
@@ -861,25 +875,48 @@ class GUI(ThemedTk):
 		print('done.')
 		
 		# Assign variables and save
-		self.data={}
-		self.data['H']=H
-		self.data['W']=W.reshape(sh[0],sh[1],n_clusters)
-		#self.data['W_shape']=self.data['W'].shape.flatten()
-		if frame_rate==[]:
-			self.data['fr']=10
-			print('No fr given. Defaulting to 10')
+		data={}
+		data['H']=H
+		data['W']=W.reshape(sh[0],sh[1],n_clusters)
+		# Checks inner dimension match if both H and W present in file.
+		# try flipping dims
+		if data['H'].T.shape[0] == data['W'].T.shape[-1]:
+			data['H'] = data['H'].T
+			data['W'] = data['W'].T
 		else:
-			self.data['fr']=frame_rate
+			self.message('Error: Inner or outer dimensions of W [shape={}] and H [shape={}] do not match!'.format(data['H'].shape, data['W'].shape))
+			
+		data['W_shape']=data['W'].shape
+		data['W']=data['W'].reshape(data['W'].shape[0]*data['W'].shape[1],data['W'].shape[2])
+		data['fr']=data['H'].shape[1]/60 # Forces length to be 1 minute!
+		self.data=data
+
+		if not self.display:
+			return self
+
 		if save:
-			if file_in is None:
-				file_in='data.mat'
 			fn=file_in.replace('.mat','_decomp.mat')
 			savemat(fn,self.data)
 			self.message(f'Decomposed data file saved to {fn}')
 		
-		# Reshape W here, since any use of self from here would require a flattened W
-		self.data['W']=self.data['W'].reshape(self.data['W'].shape[0]*self.data['W'].shape[1],self.data['W'].shape[2])
-		return self
+		if self.display:
+			self.data['H_pp']=self.data['H']
+			self.data['H_fp']=self.data['H']
+			self.fr.set(self.data['fr'])
+			self.data['W_pp']=self.data['W']
+			self.file_in.set(os.path.splitext(os.path.split(file_in)[1])[0])
+
+			# Set some defaults
+			self.file_out.set(self.file_in.get())
+			self.save_path.set(os.path.split(file_in)[0])
+			Hstr='H' # for whatever reason, can't double nest quotations in an f-string :/
+			self.brightness.set(f'{float(f"{np.mean(self.data[Hstr])+np.std(self.data[Hstr]):.3g}"):g}')
+			self.threshold.set(f'{float(f"{np.mean(self.data[Hstr])+np.std(self.data[Hstr]):.3g}"):g}')
+			self.comps_to_show_arr=list(range(len(self.data['H'])))
+			self.init_plots()
+			self.process_H_W()
+		else:
+			return self
 
 	def fluidsynthextra(self):
 		self.fluidsynthextracommand=sd.askstring('Input custom fluidsynth parameters here','',initialvalue=self.fluidsynthextracommand,parent=self)
