@@ -34,14 +34,20 @@ First, make sure you have Anaconda_ (or Miniconda) installed before proceeding.
 
 Create an environment and install the required packages::
    
+.. code-block::
+
    conda create -n pyanthem python=3.7 pip ffmpeg fluidsynth --channel conda-forge --channel nicthib
 
 Next, activate the environment::
    
+.. code-block:: 
+
    conda activate pyanthem
 
 Finally, install the pyanthem Python package using pip::
    
+.. code-block::
+
    pip install pyanthem
 
 Manual Installation
@@ -69,7 +75,7 @@ Optional: Using pyanthem in a Jupyter Notebook
 -----------------------------------------------
 
 To access the pyanthem environment in a Jupyter notebook, first install ipykernel in your environment::
-   
+
    conda install -c anaconda ipykernel
 
 After this, create the kernel::
