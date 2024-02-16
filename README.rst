@@ -59,7 +59,7 @@ Then, install pyanthem using pip: :code:`pip install pyanthem`
 
 .. _`Python 3.7`: https://www.python.org/downloads/release/python-378/
 .. _FFmpeg: https://ffmpeg.org/
-.. _FluidSynth: http://www.fluidsynth.org/
+.. _FluidSynth: https://github.com/FluidSynth/fluidsynth/wiki/Download
 .. _Miniconda: https://docs.conda.io/en/latest/miniconda.html
 .. _Anaconda: https://www.anaconda.com/products/individual
 
