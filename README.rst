@@ -65,8 +65,8 @@ Then, install pyanthem using pip: :code:`pip install pyanthem`
 
 *Note: Currently, pyanthem is tested to work on Python 3.7. Please use this version to minimize headaches.*
 
-Example Datasets and Scripts
-----------------------------
+Example Datasets
+----------------
 
 Next, download some example datasets to get started here_.
 
@@ -88,7 +88,7 @@ Once in a notebook, switch to the pyanthem kernel by selecting :code:`Kernel > C
 *Note: While the pyanthem kernel will now be available in any Jupyter notebook session, pyanthem will not function properly unless the Jupyter notebook is launched inside the pyanthem environment*.
 
 Usage
-=======
+=====
 
 Using pyanthem in GUI mode
 --------------------------
