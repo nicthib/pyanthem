@@ -32,21 +32,21 @@ Easy Installation Using Anaconda
 --------------------------------
 First, make sure you have Anaconda_ (or Miniconda) installed before proceeding.
 
-Create an environment and install the required packages::
+Create an environment and install the required packages:
    
-.. code-block::
+.. code-block:: bash
 
    conda create -n pyanthem python=3.7 pip ffmpeg fluidsynth --channel conda-forge --channel nicthib
 
-Next, activate the environment::
+Next, activate the environment:
    
-.. code-block:: 
+.. code-block:: bash
 
    conda activate pyanthem
 
-Finally, install the pyanthem Python package using pip::
+Finally, install the pyanthem Python package using pip:
    
-.. code-block::
+.. code-block:: bash
 
    pip install pyanthem
 
