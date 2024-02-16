@@ -146,7 +146,7 @@ To run pyanthem in CLI mode, pass the argument :code:`display=False`, and assign
 .. code-block:: python
    
    import pyanthem
-   g=pyanthem.run(display=False)
+   g = pyanthem.run(display=False)
 
 Next, load a dataset and config file using the :code:`.load_data()` and :code:`.load_config()` methods. You can pass an explicit file name to the :code:`file_in` argument, or pass none to recieve a file select prompt (note the use of the leading :code:`r` when naming a file location):
 
@@ -172,6 +172,23 @@ Once you're comfortable with this syntax, you can combine all of these steps int
    g.load_data(file_in=data_file).load_config(file_in=config_file).write_AV().cleanup()
 
 Congratulations - you've created your first audiovisualization in CLI mode!
+
+Decomposing raw datasets
+------------------------
+
+This feature is still a work in progress - results may vary for your specific dataset!
+
+If you have some of your own data you would like to decompose into components for audiovisualization, you can utilize the CLI command process_raw() to accomplish this.
+
+Example usage:
+
+.. code-block:: python
+   
+   import pyanthem
+   g = pyanthem.run(display=False)
+   g.process_raw(file_in=r'path/to/your/file.mat',n_clusters=20,save=True)
+
+Here, we first begin a CLI session using the display=False flag. Then, we load a .mat file for decomposition, clustering it into 20 components, and then create a decomposition using these clusters. The output - temporal and spatial components, are assigned to the workspace for further processing, and are also saved as a new file where the dataset was loaded from. Save is disabled by default, so make sure to set the save flag to True if you want to save the processed data.
 
 Team
 ====
