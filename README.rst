@@ -25,37 +25,12 @@ If you would prefer to keep things simple, you can skip matrix decomposition alt
 
 If this is too much information to digest, don't worry! Try the example below to get more familiar with what the data looks like, and how pyanthem transforms it.
 
-Requirements
-============
-
-*See installation guide below before proceeding!*
-
-`Python 3.7`_:
-   Currently, pyanthem is tested to work on Python 3.7. This will be updated as more versions are tested.
-
-FFmpeg_:
-   ffmpeg enables video creation and merging.
-
-FluidSynth_:
-   FluidSynth enables conversion of MIDI files to crisp, high quality sound files.
-   
-If you do have the above requirements installed, you can install pyanthem using pip: :code:`pip install pyanthem`
-
-Conda (optional, but highly recommended):
-   Conda enables simple and reliable package installation. Use Miniconda_ for a minimal installation, or Anaconda_ otherwise.
-
-.. _`Python 3.7`: https://www.python.org/downloads/release/python-378/
-.. _FFmpeg: https://ffmpeg.org/
-.. _FluidSynth: http://www.fluidsynth.org/
-.. _Miniconda: https://docs.conda.io/en/latest/miniconda.html
-.. _Anaconda: https://www.anaconda.com/products/individual
-
 Installation
 ============
-Note: If you do not have working installations of the listed requirements (Python 3.7 + fluidsynth + ffmpeg), it is **strongly recommended** that you use Miniconda_/Anaconda_ for a straightforward installation process. If you do not have either, Miniconda is preferred as it is a faster install and takes up much less space than Anaconda.
 
-Using Miniconda/Anaconda:
+Easy Installation Using Anaconda:
 -------------------------
+First, make sure you have Anaconda_ (or Miniconda) installed before proceeding.
 
 Create an environment and install the required packages::
    
@@ -69,12 +44,33 @@ Finally, install the pyanthem Python package using pip::
    
    pip install pyanthem
 
+Manual Installation
+-----------
+
+First, install ffmpeg and FluidSynth:
+
+FFmpeg_:
+   ffmpeg enables video creation and merging.
+
+FluidSynth_:
+   FluidSynth enables conversion of MIDI files to crisp, high quality sound files.
+   
+Then, install pyanthem using pip: :code:`pip install pyanthem`
+
+.. _`Python 3.7`: https://www.python.org/downloads/release/python-378/
+.. _FFmpeg: https://ffmpeg.org/
+.. _FluidSynth: http://www.fluidsynth.org/
+.. _Miniconda: https://docs.conda.io/en/latest/miniconda.html
+.. _Anaconda: https://www.anaconda.com/products/individual
+
+*Note: Currently, pyanthem is tested to work on Python 3.7. Please use this version to minimize headaches.*
+
 Example datasets and Scripts
 ----------------------------
 
-If you want to get familiar with the datasets that pyanthem uses and try some applications of pyanthem, clone this repository or download `here.`
+If you want to get familiar with the datasets that pyanthem uses and try some applications of pyanthem, check them out here_.
 
-.. _`here`: https://github.com/nicthib/pyanthem/archive/master.zip
+.. _here: https://github.com/nicthib/pyanthem/tree/master/datasets
 
 Using pyanthem in a Jupyter Notebook
 -----------------------------------------------
@@ -91,7 +87,7 @@ Once in a notebook, switch to the pyanthem kernel by selecting :code:`Kernel > C
 
 *Note: While the pyanthem kernel will now be available in any Jupyter notebook session, pyanthem will not function properly unless the Jupyter notebook is launched inside the pyanthem environment*.
 
-Example
+Usage
 =======
 
 Using pyanthem in GUI mode
