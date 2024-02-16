@@ -17,10 +17,6 @@ Usage
 
 pyanthem was primarily developed to interpret matrix-decomposed functional imaging datasets - for example, a dataset **V** with shape :code:`[height,width,time]`, is decomposed into two matrixes: **W** with shape :code:`[height*width,n]`, and **H** with shape :code:`[n,time]` such that :code:`H x W = V`. Here, n represents the number of variables represented by the decomposition. There are various techniques used to decompose matrixes - two popular techniques include Non-negative Matrix Factorization (NMF), and Singular Value Decomposition (SVD).
 
-Here's a visual illustration of matrix decomposition - note that in this example, :code:`n=2`:
-
-.. image:: https://upload.wikimedia.org/wikipedia/commons/f/f9/NMF.png
-
 If you would prefer to keep things simple, you can skip matrix decomposition altogether and focus solely on converting raw data to audio - only working with the **H** matrix, where each row represents a variable and each column represents a time point.
 
 If this is too much information to digest, don't worry! Try the example below to get more familiar with what the data looks like, and how pyanthem transforms it.
@@ -74,12 +70,16 @@ Then, install pyanthem using pip: :code:`pip install pyanthem`
 Optional: Using pyanthem in a Jupyter Notebook
 -----------------------------------------------
 
-To access the pyanthem environment in a Jupyter notebook, first install ipykernel in your environment::
+To access the pyanthem environment in a Jupyter notebook, first install ipykernel in your environment:
+
+.. code-block:: bash
 
    conda install -c anaconda ipykernel
 
-After this, create the kernel::
-   
+After this, create the kernel:
+
+.. code-block:: bash
+
    python -m ipykernel install --user --name=pyanthem
 
 Once in a notebook, switch to the pyanthem kernel by selecting :code:`Kernel > Change kernel > pyanthem`
