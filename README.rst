@@ -12,9 +12,6 @@ Features:
 5) Example datasets to get you started
 6) Headache-free installation with an Anaconda environment
 
-Usage
-=====
-
 pyanthem was primarily developed to interpret matrix-decomposed functional imaging datasets - for example, a dataset **V** with shape :code:`[height,width,time]`, is decomposed into two matrixes: **W** with shape :code:`[height*width,n]`, and **H** with shape :code:`[n,time]` such that :code:`H x W = V`. Here, n represents the number of variables represented by the decomposition. There are various techniques used to decompose matrixes - two popular techniques include Non-negative Matrix Factorization (NMF), and Singular Value Decomposition (SVD).
 
 If you would prefer to keep things simple, you can skip matrix decomposition altogether and focus solely on converting raw data to audio - only working with the **H** matrix, where each row represents a variable and each column represents a time point.
