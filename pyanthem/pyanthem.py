@@ -432,7 +432,7 @@ class GUI(ThemedTk):
 			track.append(mido.Message('note_off', note=self.keys[i], time=250))
 		track.append(mido.Message('note_off', note=self.keys[i], time=500))
 		mid.save(fn_midi)
-		cmd='fluidsynth -ni {} -F {} -r {} {} {} '.format(self.cfg['fluidsynthextracommand'],fn_wav,fs,fn_font,fn_midi)
+		cmd='fluidsynth -ni {} -F "{}" -r {} "{}" "{}"'.format(self.cfg['fluidsynthextracommand'],fn_wav,fs,fn_font,fn_midi)
 		os.system(cmd)
 		music.load(fn_wav)
 		for i in range(len(self.keys)):
@@ -504,7 +504,7 @@ class GUI(ThemedTk):
 			for chan in range(nchan):
 				track.append(mido.Message('note_off', channel=chan, note=self.keys[chan], time=0))
 			mid.save(fn_midi)
-		os.system('fluidsynth -ni {} -F {} -r {} {} {}'.format(self.cfg['fluidsynthextracommand'],fn_wav,fs,fn_font,fn_midi))
+		os.system('fluidsynth -ni {} -F "{}" -r {} "{}" "{}"'.format(self.cfg['fluidsynthextracommand'],fn_wav,fs,fn_font,fn_midi))
 		self.message(f'Audio file written to {self.cfg["save_path"]}')
 		return self
 
@@ -555,7 +555,7 @@ class GUI(ThemedTk):
 		Merges video and audio with ffmpeg
 		'''
 		fn=os.path.join(self.cfg['save_path'],self.cfg['file_out'])
-		cmd='ffmpeg -hide_banner -loglevel fatal -y -i {} -i {} -c:a aac -map 0:v:0 -map 1:a:0 {}'.format(fn+'.mp4',fn+'.wav',fn+'_AV.mp4')
+		cmd='ffmpeg -hide_banner -loglevel fatal -y -i "{}" -i "{}" -c:a aac -map 0:v:0 -map 1:a:0 "{}"'.format(fn+'.mp4',fn+'.wav',fn+'_AV.mp4')
 		os.system(cmd)
 		self.message(f'A/V file written to {self.cfg["save_path"]}')
 		return self
