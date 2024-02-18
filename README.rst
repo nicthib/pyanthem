@@ -29,7 +29,7 @@ Create an environment and install the required packages:
    
 .. code-block:: bash
 
-   conda create -n pyanthem python=3.7 pip ffmpeg fluidsynth --channel conda-forge --channel nicthib
+   conda create -n pyanthem python=3.8 pip ffmpeg fluidsynth --channel conda-forge --channel nicthib
 
 Next, activate the environment:
    
@@ -60,13 +60,13 @@ Finally, install pyanthem using pip:
 
    pip install pyanthem
 
-.. _`Python 3.7`: https://www.python.org/downloads/release/python-378/
+.. _`Python 3.8`: https://www.python.org/downloads/release/python-378/
 .. _FFmpeg: https://ffmpeg.org/
 .. _FluidSynth: https://github.com/FluidSynth/fluidsynth/wiki/Download
 .. _Miniconda: https://docs.conda.io/en/latest/miniconda.html
 .. _Anaconda: https://www.anaconda.com/products/individual
 
-*Note: Currently, pyanthem is tested to work on Python 3.7. Please use this version to minimize headaches.*
+*Note: Currently, pyanthem is tested to work on Python 3.8. Please use this version to minimize headaches.*
 
 Optional: Using pyanthem in a Jupyter Notebook
 -----------------------------------------------
