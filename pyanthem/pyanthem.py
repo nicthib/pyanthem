@@ -260,7 +260,7 @@ class GUI(ThemedTk):
 						getattr(self,key).set(value)
 					else:
 						setattr(self,key,value)
-				self.refresh_GUI()
+				self.process_H_W()
 			else:
 				return self
 

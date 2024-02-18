@@ -3,7 +3,7 @@ with open('README.rst', 'r') as fh:
 	long_description = fh.read()
 setuptools.setup(
 	name='pyanthem',
-	version='1.2.5',
+	version='1.2.6',
 	author='Nic Thibodeaux',
 	author_email='dnt2111@columbia.edu',
 	description='pyanthem - an audiovisualization tool to make your data more interesting',
