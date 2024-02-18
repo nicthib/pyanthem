@@ -180,7 +180,7 @@ Congratulations - you've created your first audiovisualization in CLI mode!
 Decomposing raw datasets
 ------------------------
 
-This feature is still a work in progress - results may vary for your specific dataset!
+*This feature is still a work in progress - results may vary for your specific dataset!*
 
 If you have some of your own data you would like to decompose into components for audiovisualization, you can utilize the CLI command process_raw() to accomplish this.
 
@@ -194,7 +194,7 @@ Example usage:
 
 Here, we first begin a CLI session using the display=False flag. Then, we load a .mat file for decomposition, clustering it into 20 components, and then create a decomposition using these clusters. The output - temporal and spatial components, are assigned to the workspace for further processing, and are also saved as a new file where the dataset was loaded from. Save is disabled by default, so make sure to set the save flag to True if you want to save the processed data.
 
-*Note: You can also decompose a raw dataset in GUI mode using the :code:`File --> Load raw...` menu command.
+*Note: You can also decompose a raw dataset in GUI mode using the :code:`File --> Load raw...` menu command.*
 
 Team
 ====
