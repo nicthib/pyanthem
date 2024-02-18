@@ -54,7 +54,11 @@ FFmpeg_:
 FluidSynth_:
    FluidSynth enables conversion of MIDI files to crisp, high quality sound files.
    
-Then, install pyanthem using pip: :code:`pip install pyanthem`
+Finally, install pyanthem using pip: 
+
+.. code-block:: bash
+
+   pip install pyanthem
 
 .. _`Python 3.7`: https://www.python.org/downloads/release/python-378/
 .. _FFmpeg: https://ffmpeg.org/
@@ -114,7 +118,7 @@ Once completed, the pyanthem GUI will initialize:
 
 .. image:: https://github.com/nicthib/pyanthem/blob/media/GUI1.png
 
-Next, load a dataset by clicking :code:`File > Load from .mat`. For this section, we will load the dataset :code:`demo1.mat`. Currently, you can import any .mat or hdf5 file that contains the following variables:
+Next, load a dataset by clicking :code:`File > Load data...`. For this section, we will load the dataset :code:`demo1.mat`. Currently, you can import any .mat or hdf5 file that contains the following variables:
 
 1) Temporal variable (**H, required**): A 2D matrix of shape :code:`[n,t]`, where each row is a component and each column is a time-point. This variable is referred to as **"H"** in the pyanthem environment.
 
@@ -189,6 +193,8 @@ Example usage:
    g.process_raw(file_in=r'path/to/your/file.mat',n_clusters=20,save=True)
 
 Here, we first begin a CLI session using the display=False flag. Then, we load a .mat file for decomposition, clustering it into 20 components, and then create a decomposition using these clusters. The output - temporal and spatial components, are assigned to the workspace for further processing, and are also saved as a new file where the dataset was loaded from. Save is disabled by default, so make sure to set the save flag to True if you want to save the processed data.
+
+*Note: You can also decompose a raw dataset in GUI mode using the :code:`File --> Load raw...` menu command.
 
 Team
 ====
