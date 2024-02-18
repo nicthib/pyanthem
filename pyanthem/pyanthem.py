@@ -397,6 +397,7 @@ class GUI(ThemedTk):
 		# Colormap
 		cmap=getattr(cmaps,self.cfg['cmapchoice'])
 		self.cmap=cmap(np.linspace(0,1,len(self.data['H_pp'])))
+		self.message('Updated.')
 		if self.display:
 			self.refresh_GUI()
 
@@ -519,7 +520,7 @@ class GUI(ThemedTk):
 		fn_vid=os.path.join(self.cfg['save_path'],self.cfg['file_out'])+'.mp4'
 		v_shape=self.data['W_shape'][::-1][1:] # Reverse because ffmpeg does hxw
 		command=['ffmpeg',
-			'-loglevel', 'warning', # Prevents excessive messages
+			'-loglevel', 'fatal', # Prevents excessive messages
 			'-hide_banner',
 			'-y', # Auto overwrite
 			'-f', 'image2pipe',
@@ -554,7 +555,7 @@ class GUI(ThemedTk):
 		Merges video and audio with ffmpeg
 		'''
 		fn=os.path.join(self.cfg['save_path'],self.cfg['file_out'])
-		cmd='ffmpeg -hide_banner -loglevel warning -y -i {} -i {} -c:a aac -map 0:v:0 -map 1:a:0 {}'.format(fn+'.mp4',fn+'.wav',fn+'_AV.mp4')
+		cmd='ffmpeg -hide_banner -loglevel fatal -y -i {} -i {} -c:a aac -map 0:v:0 -map 1:a:0 {}'.format(fn+'.mp4',fn+'.wav',fn+'_AV.mp4')
 		os.system(cmd)
 		self.message(f'A/V file written to {self.cfg["save_path"]}')
 		return self
@@ -653,10 +654,14 @@ class GUI(ThemedTk):
 		Entry(textvariable=self.file_out).grid(row=5, column=1,columnspan=2,sticky='W')
 		Entry(textvariable=self.save_path,width=17).grid(row=7, column=1,columnspan=2,sticky='EW')
 		Entry(textvariable=self.speed,width=7).grid(row=2, column=4, sticky='W')
-		Entry(textvariable=self.start_percent,width=7).grid(row=3, column=4, sticky='W')
-		Entry(textvariable=self.end_percent,width=7).grid(row=4, column=4, sticky='W')
-		Entry(textvariable=self.baseline,width=7).grid(row=5, column=4, sticky='W')
-		Entry(textvariable=self.brightness,width=7).grid(row=6, column=4, sticky='W')
+		self.start_percent_entry=Entry(textvariable=self.start_percent,width=7)
+		self.start_percent_entry.grid(row=3, column=4, sticky='W')
+		self.end_percent_entry=Entry(textvariable=self.end_percent,width=7)
+		self.end_percent_entry.grid(row=4, column=4, sticky='W')
+		self.baseline_entry=Entry(textvariable=self.baseline,width=7)
+		self.baseline_entry.grid(row=5, column=4, sticky='W')
+		self.brightness_entry=Entry(textvariable=self.brightness,width=7)
+		self.brightness_entry.grid(row=6, column=4, sticky='W')
 		self.threshold_entry=Entry(textvariable=self.threshold,width=7)
 		self.threshold_entry.grid(row=2, column=6, sticky='W')
 
@@ -749,6 +754,22 @@ class GUI(ThemedTk):
 		# Bind shortcuts
 		self.bind_all("<Control-q>", self.quit)
 		self.bind_all("<Control-a>", lambda:[self.process_H_W(),self.refresh_GUI()])
+
+		# Callbacks
+		def callback(event):
+   			self.process_H_W()
+		self.cmapchooser.bind("<<ComboboxSelected>>", callback)
+		self.brightness_entry.bind("<FocusOut>",callback)
+		self.brightness_entry.bind("<Return>",callback)
+		self.threshold_entry.bind("<FocusOut>",callback)
+		self.threshold_entry.bind("<Return>",callback)
+		self.start_percent_entry.bind("<FocusOut>",callback)
+		self.start_percent_entry.bind("<Return>",callback)
+		self.end_percent_entry.bind("<FocusOut>",callback)
+		self.end_percent_entry.bind("<Return>",callback)
+		self.baseline_entry.bind("<FocusOut>",callback)
+		self.baseline_entry.bind("<Return>",callback)
+
 
 	def init_plots(self):
 		'''
@@ -845,10 +866,11 @@ class GUI(ThemedTk):
 		data_nn=data[~nanidx] # nn=non-nan
 		# k-means
 		print('Performing k-means...',end='')
-		if n_clusters is None:
-			# Default k is the 4th root of the number of samples per frame (for 256x256, this would be 16)
-			n_clusters=int(len(data)**.25) 
-			print(f'No num_clusters given. Defaulting to {n_clusters}...',end='')
+		n_clusters=int(sd.askstring('Imput # of clusters for decomposition...','',initialvalue=int(len(data)**.25),parent=self))
+		# if n_clusters is None:
+		# 	# Default k is the 4th root of the number of samples per frame (for 256x256, this would be 16)
+		# 	n_clusters=int(len(data)**.25) 
+		# 	print(f'No num_clusters given. Defaulting to {n_clusters}...',end='')
 		idx_nn=KMeans(n_clusters=n_clusters, random_state=0).fit(data_nn).labels_
 		idx=np.zeros((len(data),))
 		idx[nanidx==False]=idx_nn

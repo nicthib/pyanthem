@@ -1,10 +1,9 @@
-# conda remove --name pyanthem --all
 import setuptools
 with open('README.rst', 'r') as fh:
 	long_description = fh.read()
 setuptools.setup(
 	name='pyanthem',
-	version='1.2.3',
+	version='1.2.4',
 	author='Nic Thibodeaux',
 	author_email='dnt2111@columbia.edu',
 	description='pyanthem - an audiovisualization tool to make your data more interesting',
@@ -35,5 +34,5 @@ setuptools.setup(
 		'License :: OSI Approved :: MIT License',
 		'Operating System :: OS Independent',
 	],
-	python_requires='>=3.7',
+	python_requires='>=3.8',
 )
