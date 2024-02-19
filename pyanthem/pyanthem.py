@@ -94,6 +94,7 @@ def run(display=True):
 	Main command to run GUI or CLI
 	'''
 	root=GUI(display=display)
+	##root.configure(bg="white")
 	sys.ps1='♫ '
 	if display:
 		root.mainloop()
@@ -117,7 +118,7 @@ class GUI(ThemedTk):
 				os.path.join(os.path.join(os.path.dirname(os.path.abspath(__file__)),'anthem_soundfonts'),'font.sf2'),quiet=False)
 		if self.display:
 			ThemedTk.__init__(self)
-			self.set_theme('clearlooks')
+			self.set_theme('breeze')
 			self.initGUI()
 	
 	def quit(self,event=None):
@@ -562,11 +563,12 @@ class GUI(ThemedTk):
 	
 	def write_AV(self):
 		'''
-		Runs full write and merge
+		Runs full write and merge with cleanup
 		'''
 		self.write_video()
 		self.write_audio()
 		self.merge()
+		self.cleanup()
 		if not self.display:
 			return self
 
@@ -724,10 +726,8 @@ class GUI(ThemedTk):
 		savemenu=Menu(menubar, tearoff=0)
 		savemenu.add_command(label="Audio", command=self.write_audio)
 		savemenu.add_command(label="Video", command=self.write_video)
-		savemenu.add_command(label="Config", command=self.dump_cfg)
-		savemenu.add_command(label="Merge A/V", command=self.merge)
-		savemenu.add_command(label="Write A/V then merge", command=self.write_AV)
-		savemenu.add_command(label="Cleanup", command=self.cleanup)
+		savemenu.add_command(label="Audio + Video", command=self.write_AV)
+		savemenu.add_command(label="Config File", command=self.dump_cfg)
 
 		advancedmenu=Menu(menubar, tearoff=0)
 		advancedmenu.add_command(label="Custom fluidsynth params", command=self.fluidsynthextra)
