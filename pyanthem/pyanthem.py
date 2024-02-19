@@ -556,7 +556,7 @@ class GUI(ThemedTk):
 		Merges video and audio with ffmpeg
 		'''
 		fn=os.path.join(self.cfg['save_path'],self.cfg['file_out'])
-		cmd='ffmpeg -hide_banner -loglevel fatal -y -i "{}" -i "{}" -c:a aac -map 0:v:0 -map 1:a:0 "{}"'.format(fn+'.mp4',fn+'.wav',fn+'_AV.mp4')
+		cmd='ffmpeg -hide_banner -loglevel fatal -y -i "{}" -i "{}" -shortest -c:a aac -map 0:v:0 -map 1:a:0 "{}"'.format(fn+'.mp4',fn+'.wav',fn+'_AV.mp4')
 		os.system(cmd)
 		self.message(f'A/V file written to {self.cfg["save_path"]}')
 		return self
