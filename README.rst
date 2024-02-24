@@ -218,6 +218,6 @@ Under construction!
 Support
 =======
 
-- Twitter: `@nicthibs`_
+- Email: `dnt2111@gmail.com`_
 
-.. _`@nicthibs`: http://twitter.com/nicthibs
+.. _`dnt2111@gmail.com`: dnt2111@gmail.com
