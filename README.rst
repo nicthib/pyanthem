@@ -116,7 +116,7 @@ The first time you run pyanthem, it will download a necessary soundfont file - t
 
 Once completed, the pyanthem GUI will initialize:
 
-.. image:: https://github.com/nicthib/pyanthem/blob/media/GUI1.png
+.. image:: https://github.com/nicthib/pyanthem/blob/master/img/panthem_init.png
 
 Next, load a dataset by clicking :code:`File > Load data...`. For this section, we will load the dataset :code:`demo1.mat`. Currently, you can import any .mat or hdf5 file that contains the following variables:
 
@@ -130,7 +130,7 @@ Next, load a dataset by clicking :code:`File > Load data...`. For this section, 
 
 Once loading is complete, the GUI should update with default options, and plots of **H** and **W**:
 
-.. image:: https://github.com/nicthib/pyanthem/blob/media/GUI2.png
+.. image:: https://github.com/nicthib/pyanthem/blob/master/img/pyanthem_full.png
 
 The bottom left plots show two representations of the dataset: A preview of the output movie (left), and a visualization of what components are included and the colormap selection. The right two plots show raw representations of **H** (top), and a visualization of the audio output file (right). Lighter colors indicate loud notes, and darker colors indicate quiet notes, with black indicating silence.
 
