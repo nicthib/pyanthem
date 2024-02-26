@@ -136,7 +136,7 @@ The bottom left plots show two representations of the dataset: A preview of the 
 
 From here, you can adjust parameters, preview the output, and finally save video and audio files. If you want to check how your parameter adjustments impact your audivisualization, click the **Update** button, and your changes will be reflected. Any issues with your selected parameters will be indicated in the white status box. Try adjusting a few parameters and observing how the plots change.
 
-Finally, render output files with the :code:`Save --> Write A/V then merge` menu command.
+Finally, render output files with the :code:`Save --> Audio + Video` menu command.
 
 Congratulations - you've created your first audiovisualization!
 
