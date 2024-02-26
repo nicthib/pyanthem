@@ -1,7 +1,11 @@
 ********************************************************************
 pyanthem: Transforming your datasets into a colorful, audible format
 ********************************************************************
+.. raw:: html
 
+    <embed>
+        <meta name="google-site-verification" content="5_gLo06nSpCmDIjq00vkVOfhrL_oHGrAVc3Q8fnPO1Y" />
+    </embed>
 Features:
 =========
 
